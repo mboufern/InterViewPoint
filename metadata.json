@@ -1,0 +1,5 @@
+{
+  "name": "InterViewPoint",
+  "description": "A comprehensive interview management tool allowing interviewers to design structured interviews, categorize questions, and score candidates with specific feedback metrics. Features YAML export/import.",
+  "requestFramePermissions": []
+}
