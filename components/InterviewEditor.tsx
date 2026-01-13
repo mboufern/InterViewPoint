@@ -14,6 +14,11 @@ export const InterviewEditor: React.FC<InterviewEditorProps> = ({ template, onUp
   // Track which question's custom settings are open
   const [openSettingsId, setOpenSettingsId] = useState<string | null>(null);
 
+  // Drag and Drop State
+  const [draggableId, setDraggableId] = useState<string | null>(null);
+  const [draggedCategoryId, setDraggedCategoryId] = useState<string | null>(null);
+  const [dragOverCategoryId, setDragOverCategoryId] = useState<string | null>(null);
+
   const updateTemplate = (updates: Partial<InterviewTemplate>) => {
     onUpdate({ ...template, ...updates });
   };
@@ -34,6 +39,49 @@ export const InterviewEditor: React.FC<InterviewEditorProps> = ({ template, onUp
         categories: template.categories.filter(c => c.id !== id),
         questions: template.questions.filter(q => q.categoryId !== id)
     });
+  };
+
+  // --- Drag & Drop Logic ---
+  const handleDragStart = (e: React.DragEvent, id: string) => {
+    setDraggedCategoryId(id);
+    e.dataTransfer.effectAllowed = 'move';
+    // Transparent ghost image if needed, or default
+  };
+
+  const handleDragOver = (e: React.DragEvent, id: string) => {
+    e.preventDefault();
+    if (draggedCategoryId === id) return;
+    setDragOverCategoryId(id);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedCategoryId(null);
+    setDragOverCategoryId(null);
+    setDraggableId(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    if (!draggedCategoryId || draggedCategoryId === targetId) {
+        handleDragEnd();
+        return;
+    }
+
+    const sortedCategories = [...template.categories].sort((a, b) => a.order - b.order);
+    const sourceIndex = sortedCategories.findIndex(c => c.id === draggedCategoryId);
+    const targetIndex = sortedCategories.findIndex(c => c.id === targetId);
+
+    if (sourceIndex === -1 || targetIndex === -1) return;
+
+    // Reorder
+    const [movedCat] = sortedCategories.splice(sourceIndex, 1);
+    sortedCategories.splice(targetIndex, 0, movedCat);
+
+    // Update order fields
+    const updatedCategories = sortedCategories.map((c, index) => ({ ...c, order: index }));
+    
+    updateTemplate({ categories: updatedCategories });
+    handleDragEnd();
   };
 
   const addQuestion = (categoryId: string) => {
@@ -150,10 +198,27 @@ export const InterviewEditor: React.FC<InterviewEditorProps> = ({ template, onUp
             
             {/* Categories */}
             {template.categories.sort((a,b) => a.order - b.order).map(cat => (
-                <div key={cat.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-slide-up">
+                <div 
+                    key={cat.id} 
+                    draggable={draggableId === cat.id}
+                    onDragStart={(e) => handleDragStart(e, cat.id)}
+                    onDragOver={(e) => handleDragOver(e, cat.id)}
+                    onDragEnd={handleDragEnd}
+                    onDrop={(e) => handleDrop(e, cat.id)}
+                    className={`bg-white rounded-xl shadow-sm border overflow-hidden animate-slide-up transition-all
+                        ${draggedCategoryId === cat.id ? 'opacity-40 border-dashed border-gray-400' : 'border-gray-200'}
+                        ${dragOverCategoryId === cat.id ? 'border-primary ring-2 ring-primary/20 scale-[1.01]' : ''}
+                    `}
+                >
                     <div className="bg-gradient-to-r from-gray-50 to-white px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                             <GripVertical className="w-4 h-4 text-gray-400 cursor-grab" />
+                             <div 
+                                onMouseDown={() => setDraggableId(cat.id)}
+                                onMouseUp={() => setDraggableId(null)}
+                                className="cursor-grab active:cursor-grabbing p-1 -ml-1 hover:bg-gray-200 rounded"
+                             >
+                                <GripVertical className="w-4 h-4 text-gray-400" />
+                             </div>
                              <input 
                                 value={cat.name}
                                 onChange={(e) => {
