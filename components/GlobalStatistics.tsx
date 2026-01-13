@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { InterviewResult } from '../types';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  ReferenceLine, ScatterChart, Scatter, ZAxis, Cell
+  ReferenceLine, ScatterChart, Scatter, ZAxis
 } from 'recharts';
 import { BarChart3, Trophy, Activity, Grid, Users } from 'lucide-react';
 
@@ -80,7 +80,8 @@ export const GlobalStatistics: React.FC<GlobalStatisticsProps> = ({ results }) =
   const heatmapData = useMemo(() => {
       // Get all unique categories across all interviews
       // Explicitly casting to string[] to avoid 'unknown' type issues during map iteration
-      const allCategories = Array.from(new Set(results.flatMap(r => r.categories.map(c => c.name)))).sort() as string[];
+      const allCategories = Array.from(new Set(results.flatMap(r => r.categories.map(c => c.name)))) as string[];
+      allCategories.sort();
       
       const rows = results.map(r => {
           const catMap: Record<string, number> = {};

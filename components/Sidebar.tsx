@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Plus, FileText, Download, Upload, Trash2, Copy, History, Settings, Briefcase, BarChart3 } from 'lucide-react';
+import { Plus, FileText, Upload, Trash2, Copy, History, Settings, Briefcase, BarChart3 } from 'lucide-react';
 import { InterviewTemplate, InterviewResult, ViewMode } from '../types';
 import { parseYaml } from '../utils';
 

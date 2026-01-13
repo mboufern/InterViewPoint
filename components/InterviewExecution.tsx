@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { InterviewTemplate, InterviewResult, AnswerData, QuestionResult, AppSettings, DirectFeedback, IndirectFeedback } from '../types';
 import { FEEDBACK_COLORS, CUSTOM_FEEDBACK_COLOR } from '../constants';
 import { generateId, exportToYaml, downloadFile } from '../utils';
-import { Download, User, FileText, X, PieChart, BarChart2 } from 'lucide-react';
+import { Download, User, FileText, X, PieChart } from 'lucide-react';
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend

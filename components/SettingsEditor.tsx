@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AppSettings, DirectFeedback, IndirectFeedback } from '../types';
+import { AppSettings, DirectFeedback, IndirectFeedback, FeedbackSetting } from '../types';
 import { DEFAULT_SETTINGS } from '../constants';
 import { Save, RotateCcw, Download, Upload, Settings } from 'lucide-react';
 import { exportToYaml, parseYaml, downloadFile } from '../utils';
@@ -18,22 +18,27 @@ export const SettingsEditor: React.FC<SettingsEditorProps> = ({ settings, onSave
     setLocalSettings(settings);
   }, [settings]);
 
-  const handleChange = (
-    type: 'direct' | 'indirect',
-    key: string,
-    field: 'label' | 'score',
+  const handleChange = <T extends 'direct' | 'indirect'>(
+    type: T,
+    key: T extends 'direct' ? DirectFeedback : IndirectFeedback,
+    field: keyof FeedbackSetting,
     value: string | number
   ) => {
-    setLocalSettings(prev => ({
-      ...prev,
-      [type]: {
-        ...prev[type],
-        [key]: {
-          ...prev[type][key as any],
-          [field]: value
-        }
-      }
-    }));
+    setLocalSettings(prev => {
+        const category = prev[type] as any;
+        const currentSetting = category[key];
+        
+        return {
+            ...prev,
+            [type]: {
+                ...category,
+                [key]: {
+                    ...currentSetting,
+                    [field]: value
+                }
+            }
+        };
+    });
   };
 
   const handleSave = () => {
@@ -109,8 +114,8 @@ export const SettingsEditor: React.FC<SettingsEditorProps> = ({ settings, onSave
                 Direct Question Feedbacks
             </h2>
             <div className="grid gap-4">
-              {Object.keys(localSettings.direct).map((key) => {
-                const setting = localSettings.direct[key as DirectFeedback];
+              {(Object.keys(localSettings.direct) as DirectFeedback[]).map((key) => {
+                const setting = localSettings.direct[key];
                 return (
                   <div key={key} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-primary/20 transition">
                      <div className="w-32 text-xs font-bold text-gray-500 uppercase tracking-wide">{key}</div>
@@ -145,8 +150,8 @@ export const SettingsEditor: React.FC<SettingsEditorProps> = ({ settings, onSave
                  Indirect Question Feedbacks
             </h2>
             <div className="grid gap-4">
-              {Object.keys(localSettings.indirect).map((key) => {
-                const setting = localSettings.indirect[key as IndirectFeedback];
+              {(Object.keys(localSettings.indirect) as IndirectFeedback[]).map((key) => {
+                const setting = localSettings.indirect[key];
                 return (
                   <div key={key} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-accent/50 transition">
                      <div className="w-32 text-xs font-bold text-gray-500 uppercase tracking-wide">{key}</div>
