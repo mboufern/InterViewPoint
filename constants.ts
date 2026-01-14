@@ -14,12 +14,6 @@ export const FEEDBACK_COLORS: Record<string, string> = {
 
 export const CUSTOM_FEEDBACK_COLOR = 'bg-purple-100 text-purple-800 border-purple-300';
 
-export const INITIAL_CATEGORIES = [
-  { id: 'cat-1', name: 'General', order: 0 },
-  { id: 'cat-2', name: 'Frontend', order: 1 },
-  { id: 'cat-3', name: 'Backend', order: 2 },
-];
-
 export const DEFAULT_SETTINGS: AppSettings = {
   direct: {
     [DirectFeedback.CORRECT]: { label: 'Correct Answer', score: 100 },

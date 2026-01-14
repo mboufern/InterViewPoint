@@ -8,7 +8,7 @@ import { RunDetails } from './components/RunDetails';
 import { CalendarView } from './components/CalendarView';
 import { InterviewTemplate, InterviewResult, ViewMode, AppSettings, RecruitmentRun } from './types';
 import { generateId } from './utils';
-import { INITIAL_CATEGORIES, DEFAULT_SETTINGS } from './constants';
+import { DEFAULT_SETTINGS } from './constants';
 import { ToastProvider, useToast } from './components/Toast';
 import { ConfirmProvider, useConfirm } from './components/ConfirmModal';
 
@@ -29,7 +29,155 @@ const AppContent: React.FC = () => {
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
   
   const [viewMode, setViewMode] = useState<ViewMode>('EDITOR');
+const defaultTemplate: InterviewTemplate = {
+          id: generateId(), // Or generateId() if you prefer dynamic IDs
+          name: 'New Entry Level Internship Interview',
+          createdAt: new Date().toISOString(),
+          categories: [
+              { id: 'cat_intro_01', name: 'Introduction & Interest', order: 0 },
+              { id: 'cat_basics_02', name: 'General Web Concepts', order: 1 },
+              { id: 'cat_collab_03', name: 'Collaboration & Learning', order: 2 },
+              { id: 'cat_backend_04', name: 'Backend Basics (NestJS)', order: 3 },
+              { id: 'cat_frontend_05', name: 'Frontend Basics (React)', order: 4 },
+          ],
+          questions: [
+              // --- Introduction & Interest ---
+              {
+                  id: 'q_intro_01',
+                  text: 'Tell us about yourself and what made you interested in applying for this specific internship?',
+                  type: 'DIRECT',
+                  multiplier: 1,
+                  categoryId: 'cat_intro_01',
+                  order: 0,
+                  customFeedbacks: []
+              },
+              {
+                  id: 'q_intro_02',
+                  text: 'What was your favorite course or subject at school so far and why?',
+                  type: 'DIRECT',
+                  multiplier: 1,
+                  categoryId: 'cat_intro_01',
+                  order: 1,
+                  customFeedbacks: []
+              },
 
+              // --- General Web Concepts ---
+              {
+                  id: 'q_web_01',
+                  text: 'In your own words, what is the difference between Frontend and Backend?',
+                  type: 'DIRECT',
+                  multiplier: 1,
+                  categoryId: 'cat_basics_02',
+                  order: 0,
+                  customFeedbacks: []
+              },
+              {
+                  id: 'q_web_02',
+                  text: 'Have you used Git or GitHub before? How do you save your code?',
+                  type: 'DIRECT',
+                  multiplier: 1,
+                  categoryId: 'cat_basics_02',
+                  order: 1,
+                  customFeedbacks: []
+              },
+              {
+                  id: 'q_web_03',
+                  text: 'What is an API and why do we need them?',
+                  type: 'DIRECT',
+                  multiplier: 1,
+                  categoryId: 'cat_basics_02',
+                  order: 2,
+                  customFeedbacks: []
+              },
+
+              // --- Collaboration & Learning ---
+              {
+                  id: 'q_collab_01',
+                  text: 'Tell me about a school project where you worked with other students. How did you split the work?',
+                  type: 'INDIRECT',
+                  multiplier: 1,
+                  categoryId: 'cat_collab_03',
+                  order: 0,
+                  customFeedbacks: []
+              },
+              {
+                  id: 'q_collab_02',
+                  text: 'When you get an error in your code that you don\'t understand, what is the first thing you do?',
+                  type: 'DIRECT',
+                  multiplier: 1,
+                  categoryId: 'cat_collab_03',
+                  order: 1,
+                  customFeedbacks: []
+              },
+
+              // --- Backend Basics (NestJS) ---
+              {
+                  id: 'q_back_01',
+                  text: 'Why should we use TypeScript instead of normal JavaScript? What are the benefits?',
+                  type: 'DIRECT',
+                  multiplier: 1,
+                  categoryId: 'cat_backend_04',
+                  order: 0,
+                  customFeedbacks: []
+              },
+              {
+                  id: 'q_back_02',
+                  text: 'In NestJS (or any backend framework), what is the role of a "Controller"?',
+                  type: 'DIRECT',
+                  multiplier: 1,
+                  categoryId: 'cat_backend_04',
+                  order: 1,
+                  customFeedbacks: []
+              },
+              {
+                  id: 'q_back_03',
+                  text: 'Do you know what a Database ORM is (like Prisma or TypeORM)? Why do we use it?',
+                  type: 'DIRECT',
+                  multiplier: 1,
+                  categoryId: 'cat_backend_04',
+                  order: 2,
+                  customFeedbacks: []
+              },
+
+              // --- Frontend Basics (React) ---
+              {
+                  id: 'q_front_01',
+                  text: 'What is a "Component" in React? Can you give a simple example?',
+                  type: 'DIRECT',
+                  multiplier: 1,
+                  categoryId: 'cat_frontend_05',
+                  order: 0,
+                  customFeedbacks: []
+              },
+              {
+                  id: 'q_front_02',
+                  text: 'What is the difference between "State" and "Props"?',
+                  type: 'DIRECT',
+                  multiplier: 2,
+                  categoryId: 'cat_frontend_05',
+                  order: 1,
+                  customFeedbacks: []
+              },
+              {
+                  id: 'q_front_03',
+                  text: 'How do you create a variable that changes (like a counter) in React? (Hint: useState)',
+                  type: 'DIRECT',
+                  multiplier: 1,
+                  categoryId: 'cat_frontend_05',
+                  order: 2,
+                  customFeedbacks: []
+              },
+              {
+                  id: 'q_front_04',
+                  text: 'If you want to fetch data from an API when the page loads, which React Hook would you use?',
+                  type: 'DIRECT',
+                  multiplier: 1,
+                  categoryId: 'cat_frontend_05',
+                  order: 3,
+                  customFeedbacks: []
+              }
+          ]
+      };
   // --- Persistence ---
   useEffect(() => {
     const storedTemplates = localStorage.getItem('ivp_templates');
@@ -41,18 +189,8 @@ const AppContent: React.FC = () => {
       setTemplates(JSON.parse(storedTemplates));
     } else {
         // Create a default demo template if empty
-        const defaultTemplate: InterviewTemplate = {
-            id: generateId(),
-            name: 'Full Stack Developer Internship',
-            createdAt: new Date().toISOString(),
-            categories: INITIAL_CATEGORIES,
-            questions: [
-                { id: 'q1', text: 'Explain the event loop in JavaScript.', type: 'DIRECT', multiplier: 1.5, categoryId: 'cat-2', order: 0 },
-                { id: 'q2', text: 'How do you handle state management in a large React app?', type: 'INDIRECT', multiplier: 1.2, categoryId: 'cat-2', order: 1 },
-                { id: 'q3', text: 'Difference between SQL and NoSQL?', type: 'DIRECT', multiplier: 1.0, categoryId: 'cat-3', order: 0 },
-            ]
-        };
-        setTemplates([defaultTemplate]);
+        
+      setTemplates([defaultTemplate]);
     }
 
     if (storedResults) {
