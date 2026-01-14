@@ -83,7 +83,7 @@ export const SettingsEditor: React.FC<SettingsEditorProps> = ({ settings, onSave
         <div>
             <div className="flex items-center gap-2 text-gray-400 text-xs uppercase font-bold tracking-wider mb-1">
                 <Settings className="w-3 h-3" />
-                <span>Configuration</span>
+                <span>Global Settings</span>
             </div>
             <h1 className="text-2xl font-bold text-gray-900">Feedback Settings</h1>
         </div>

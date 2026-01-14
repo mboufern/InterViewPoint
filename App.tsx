@@ -4,7 +4,8 @@ import { InterviewEditor } from './components/InterviewEditor';
 import { InterviewExecution } from './components/InterviewExecution';
 import { SettingsEditor } from './components/SettingsEditor';
 import { GlobalStatistics } from './components/GlobalStatistics';
-import { InterviewTemplate, InterviewResult, ViewMode, AppSettings } from './types';
+import { RunDetails } from './components/RunDetails';
+import { InterviewTemplate, InterviewResult, ViewMode, AppSettings, RecruitmentRun } from './types';
 import { generateId } from './utils';
 import { INITIAL_CATEGORIES, DEFAULT_SETTINGS } from './constants';
 
@@ -13,10 +14,12 @@ const App: React.FC = () => {
   const [templates, setTemplates] = useState<InterviewTemplate[]>([]);
   const [results, setResults] = useState<InterviewResult[]>([]);
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const [runs, setRuns] = useState<RecruitmentRun[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   
   const [activeTemplateId, setActiveTemplateId] = useState<string | null>(null);
   const [activeResultId, setActiveResultId] = useState<string | null>(null);
+  const [activeRunId, setActiveRunId] = useState<string | null>(null);
   
   const [viewMode, setViewMode] = useState<ViewMode>('EDITOR');
 
@@ -25,6 +28,7 @@ const App: React.FC = () => {
     const storedTemplates = localStorage.getItem('ivp_templates');
     const storedResults = localStorage.getItem('ivp_results');
     const storedSettings = localStorage.getItem('ivp_settings');
+    const storedRuns = localStorage.getItem('ivp_runs');
     
     if (storedTemplates) {
       setTemplates(JSON.parse(storedTemplates));
@@ -51,6 +55,10 @@ const App: React.FC = () => {
     if (storedSettings) {
         setSettings(JSON.parse(storedSettings));
     }
+
+    if (storedRuns) {
+        setRuns(JSON.parse(storedRuns));
+    }
     
     setIsLoaded(true);
   }, []);
@@ -73,6 +81,12 @@ const App: React.FC = () => {
     }
   }, [settings, isLoaded]);
 
+  useEffect(() => {
+    if (isLoaded) {
+        localStorage.setItem('ivp_runs', JSON.stringify(runs));
+    }
+  }, [runs, isLoaded]);
+
 
   // --- Handlers ---
   const handleCreateTemplate = () => {
@@ -87,6 +101,7 @@ const App: React.FC = () => {
     setActiveTemplateId(newTemplate.id);
     setViewMode('EDITOR');
     setActiveResultId(null);
+    setActiveRunId(null);
   };
 
   const handleDeleteTemplate = (id: string) => {
@@ -127,7 +142,27 @@ const App: React.FC = () => {
   };
 
   const handleImport = (data: any) => {
-    if (data.candidateName && Array.isArray(data.questions)) {
+    if (data.runInfo && Array.isArray(data.results)) {
+         // Import Run + Results
+        const run = data.runInfo as RecruitmentRun;
+        // Check if run exists, if so update, else add
+        const runExists = runs.some(r => r.id === run.id);
+        if (runExists) {
+             setRuns(runs.map(r => r.id === run.id ? run : r));
+        } else {
+             setRuns([...runs, run]);
+        }
+        
+        // Merge results (avoid duplicates by ID)
+        const newResults = [...results];
+        data.results.forEach((r: InterviewResult) => {
+            if (!newResults.some(nr => nr.id === r.id)) {
+                newResults.push(r);
+            }
+        });
+        setResults(newResults);
+        alert('Run and Results Imported Successfully');
+    } else if (data.candidateName && Array.isArray(data.questions)) {
         const r = data as InterviewResult;
         r.id = generateId();
         setResults([...results, r]);
@@ -150,6 +185,7 @@ const App: React.FC = () => {
     if (!activeTemplateId) return;
     setViewMode('EXECUTION');
     setActiveResultId(null); // New result
+    setActiveRunId(null);
   };
 
   const handleSaveResult = (result: InterviewResult) => {
@@ -162,22 +198,63 @@ const App: React.FC = () => {
     setSettings(newSettings);
   };
 
+  const handleCreateRun = () => {
+    const newRun: RecruitmentRun = {
+        id: generateId(),
+        name: 'New Recruitment Run',
+        startDate: new Date().toISOString().split('T')[0],
+        status: 'ACTIVE'
+    };
+    setRuns([...runs, newRun]);
+    setActiveRunId(newRun.id);
+    setViewMode('RUN_DETAILS');
+    setActiveTemplateId(null);
+    setActiveResultId(null);
+  };
+
+  const handleSelectRun = (id: string) => {
+      setActiveRunId(id);
+      setViewMode('RUN_DETAILS');
+      setActiveTemplateId(null);
+      setActiveResultId(null);
+  };
+
+  const handleUpdateRun = (run: RecruitmentRun) => {
+    setRuns(runs.map(r => r.id === run.id ? run : r));
+  };
+
+  const handleDeleteRun = (id: string) => {
+      if (window.confirm('Delete this recruitment run? This will NOT delete the interview results, only the run organization.')) {
+          setRuns(runs.filter(r => r.id !== id));
+          if (activeRunId === id) {
+              setActiveRunId(null);
+              setViewMode('EDITOR'); // Fallback
+          }
+      }
+  };
+
   // --- Render ---
   const activeTemplate = templates.find(t => t.id === activeTemplateId);
   const activeResult = results.find(r => r.id === activeResultId);
+  const activeRun = runs.find(r => r.id === activeRunId);
 
   return (
     <div className="flex h-screen w-full bg-white font-sans text-slate-900">
       <Sidebar
         templates={templates}
         results={results}
+        runs={runs}
         activeTemplateId={activeTemplateId}
         activeResultId={activeResultId}
-        onSelectTemplate={(id) => { setActiveTemplateId(id); setViewMode('EDITOR'); setActiveResultId(null); }}
-        onSelectResult={(id) => { setActiveResultId(id); setViewMode('EXECUTION'); setActiveTemplateId(null); }}
+        activeRunId={activeRunId}
+        onSelectTemplate={(id) => { setActiveTemplateId(id); setViewMode('EDITOR'); setActiveResultId(null); setActiveRunId(null); }}
+        onSelectResult={(id) => { setActiveResultId(id); setViewMode('EXECUTION'); setActiveTemplateId(null); setActiveRunId(null); }}
+        onSelectRun={handleSelectRun}
         onCreateTemplate={handleCreateTemplate}
+        onCreateRun={handleCreateRun}
         onImport={handleImport}
         onDeleteTemplate={handleDeleteTemplate}
+        onDeleteRun={handleDeleteRun}
         onDuplicateTemplate={handleDuplicateTemplate}
         viewMode={viewMode}
         setViewMode={setViewMode}
@@ -188,6 +265,13 @@ const App: React.FC = () => {
           <SettingsEditor settings={settings} onSave={handleSettingsSave} />
         ) : viewMode === 'STATISTICS' ? (
           <GlobalStatistics results={results} />
+        ) : viewMode === 'RUN_DETAILS' && activeRun ? (
+          <RunDetails 
+            run={activeRun}
+            results={results.filter(r => r.recruitmentRunId === activeRun.id)}
+            onUpdateRun={handleUpdateRun}
+            onDeleteRun={handleDeleteRun}
+          />
         ) : viewMode === 'EDITOR' && activeTemplate ? (
           <InterviewEditor 
             template={activeTemplate} 
@@ -202,6 +286,7 @@ const App: React.FC = () => {
              onSaveResult={handleSaveResult}
              readOnly={!!activeResult}
              settings={settings}
+             runs={runs}
            />
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-slate-400">

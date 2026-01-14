@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { InterviewTemplate, InterviewResult, AnswerData, QuestionResult, AppSettings, DirectFeedback, IndirectFeedback } from '../types';
+import { InterviewTemplate, InterviewResult, AnswerData, QuestionResult, AppSettings, DirectFeedback, IndirectFeedback, RecruitmentRun } from '../types';
 import { FEEDBACK_COLORS, CUSTOM_FEEDBACK_COLOR } from '../constants';
 import { generateId, exportToYaml, downloadFile } from '../utils';
-import { Download, User, FileText, X, PieChart } from 'lucide-react';
+import { Download, User, FileText, X, PieChart, Layers } from 'lucide-react';
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
@@ -14,6 +14,7 @@ interface InterviewExecutionProps {
   onSaveResult: (result: InterviewResult) => void;
   readOnly?: boolean;
   settings: AppSettings;
+  runs?: RecruitmentRun[];
 }
 
 // Shadcn-like Tooltip Component
@@ -40,10 +41,11 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template, existingResult, onSaveResult, readOnly = false, settings }) => {
+export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template, existingResult, onSaveResult, readOnly = false, settings, runs = [] }) => {
   // State initialization
   const [candidateName, setCandidateName] = useState(existingResult?.candidateName || '');
   const [summary, setSummary] = useState(existingResult?.summary || '');
+  const [recruitmentRunId, setRecruitmentRunId] = useState<string | null>(existingResult?.recruitmentRunId || null);
   
   const [answers, setAnswers] = useState<Record<string, AnswerData>>(() => {
       const initial: Record<string, AnswerData> = {};
@@ -174,6 +176,7 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
 
       return {
           id: existingResult?.id || generateId(),
+          recruitmentRunId: recruitmentRunId || undefined,
           templateName: currentTemplate.name,
           candidateName,
           date: existingResult?.date || new Date().toISOString(),
@@ -528,6 +531,31 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                       </div>
 
                       <div className="bg-gray-50/50 rounded-xl p-6 border border-gray-100">
+                           {readOnly && recruitmentRunId && (
+                              <div className="mb-4 p-3 bg-blue-50 text-blue-800 rounded-lg text-sm border border-blue-100 flex items-center gap-2">
+                                   <Layers className="w-4 h-4" />
+                                   <span className="font-bold">Recruitment Run:</span>
+                                   <span>{runs.find(r => r.id === recruitmentRunId)?.name || 'Unknown Run'}</span>
+                              </div>
+                          )}
+
+                           {/* Recruitment Run Selection */}
+                          {!readOnly && runs.length > 0 && (
+                              <div className="bg-white rounded-xl p-4 border border-gray-200 mb-6 shadow-sm">
+                                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Recruitment Run (Optional)</label>
+                                  <select
+                                      value={recruitmentRunId || ''}
+                                      onChange={(e) => setRecruitmentRunId(e.target.value || null)}
+                                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-white text-sm"
+                                  >
+                                      <option value="">-- Select a Run --</option>
+                                      {runs.filter(r => r.status === 'ACTIVE' || r.id === recruitmentRunId).map(run => (
+                                          <option key={run.id} value={run.id}>{run.name}</option>
+                                      ))}
+                                  </select>
+                              </div>
+                          )}
+
                           <div className="flex items-center gap-2 mb-3">
                             <FileText className="w-4 h-4 text-primary" />
                             <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wide">

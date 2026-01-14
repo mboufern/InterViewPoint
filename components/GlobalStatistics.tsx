@@ -144,9 +144,8 @@ export const GlobalStatistics: React.FC<GlobalStatisticsProps> = ({ results }) =
         <div>
             <div className="flex items-center gap-2 text-gray-400 text-xs uppercase font-bold tracking-wider mb-1">
                 <Activity className="w-3 h-3" />
-                <span>Analytics</span>
+                <span>Statistics</span>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">Global Statistics</h1>
         </div>
         <div className="text-sm text-gray-500 font-medium bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
             {results.length} Interviews Analyzed

@@ -53,12 +53,22 @@ export interface AnswerData {
   isCustom?: boolean;
 }
 
+export interface RecruitmentRun {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate?: string;
+  description?: string;
+  status: 'ACTIVE' | 'ARCHIVED';
+}
+
 export interface QuestionResult extends Question {
   answer?: AnswerData;
 }
 
 export interface InterviewResult {
   id: string;
+  recruitmentRunId?: string;
   templateName: string;
   candidateName: string;
   date: string;
@@ -79,4 +89,4 @@ export interface AppSettings {
   indirect: Record<IndirectFeedback, FeedbackSetting>;
 }
 
-export type ViewMode = 'EDITOR' | 'EXECUTION' | 'DASHBOARD' | 'SETTINGS' | 'STATISTICS';
+export type ViewMode = 'EDITOR' | 'EXECUTION' | 'DASHBOARD' | 'SETTINGS' | 'STATISTICS' | 'RUNS' | 'RUN_DETAILS';
