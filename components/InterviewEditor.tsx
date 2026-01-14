@@ -7,9 +7,17 @@ interface InterviewEditorProps {
   template: InterviewTemplate;
   onUpdate: (template: InterviewTemplate) => void;
   onStartInterview: () => void;
+  onCategoryAdded?: () => void;
+  onQuestionAdded?: () => void;
 }
 
-export const InterviewEditor: React.FC<InterviewEditorProps> = ({ template, onUpdate, onStartInterview }) => {
+export const InterviewEditor: React.FC<InterviewEditorProps> = ({ 
+  template, 
+  onUpdate, 
+  onStartInterview,
+  onCategoryAdded,
+  onQuestionAdded
+}) => {
   const [newCatName, setNewCatName] = useState('');
   // Track which question's custom settings are open
   const [openSettingsId, setOpenSettingsId] = useState<string | null>(null);
@@ -32,6 +40,7 @@ export const InterviewEditor: React.FC<InterviewEditorProps> = ({ template, onUp
     };
     updateTemplate({ categories: [...template.categories, newCategory] });
     setNewCatName('');
+    if (onCategoryAdded) onCategoryAdded();
   };
 
   const removeCategory = (id: string) => {
@@ -95,6 +104,7 @@ export const InterviewEditor: React.FC<InterviewEditorProps> = ({ template, onUp
       customFeedbacks: []
     };
     updateTemplate({ questions: [...template.questions, newQuestion] });
+    if (onQuestionAdded) onQuestionAdded();
   };
 
   const updateQuestion = (qId: string, updates: Partial<Question>) => {
@@ -186,7 +196,7 @@ export const InterviewEditor: React.FC<InterviewEditorProps> = ({ template, onUp
           <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition shadow-sm font-medium text-sm">
             <Download className="w-4 h-4" /> Export
           </button>
-          <button onClick={onStartInterview} className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition shadow-sm font-medium text-sm">
+          <button id="editor-start-interview-btn" onClick={onStartInterview} className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition shadow-sm font-medium text-sm">
             <Play className="w-4 h-4" /> Start Interview
           </button>
         </div>
@@ -258,7 +268,7 @@ export const InterviewEditor: React.FC<InterviewEditorProps> = ({ template, onUp
                                             <textarea 
                                                 value={q.text}
                                                 onChange={(e) => updateQuestion(q.id, { text: e.target.value })}
-                                                className="w-full bg-transparent border-none p-0 text-gray-800 font-medium focus:ring-0 resize-none text-base"
+                                                className="editor-question-textarea w-full bg-transparent border-none p-0 text-gray-800 font-medium focus:ring-0 resize-none text-base"
                                                 rows={2}
                                                 placeholder="Question text..."
                                             />
@@ -340,7 +350,7 @@ export const InterviewEditor: React.FC<InterviewEditorProps> = ({ template, onUp
                             ))
                         }
                         
-                        <button onClick={() => addQuestion(cat.id)} className="w-full py-3 border-2 border-dashed border-gray-200 rounded-lg text-gray-400 hover:border-primary/40 hover:text-primary flex items-center justify-center gap-2 transition font-medium text-sm bg-white hover:bg-gray-50">
+                        <button onClick={() => addQuestion(cat.id)} className="editor-add-question-btn w-full py-3 border-2 border-dashed border-gray-200 rounded-lg text-gray-400 hover:border-primary/40 hover:text-primary flex items-center justify-center gap-2 transition font-medium text-sm bg-white hover:bg-gray-50">
                             <Plus className="w-5 h-5" /> Add Question to {cat.name}
                         </button>
                     </div>
@@ -350,6 +360,7 @@ export const InterviewEditor: React.FC<InterviewEditorProps> = ({ template, onUp
             {/* Add Category */}
             <div className="flex gap-3 pt-4">
                 <input 
+                    id="editor-category-input"
                     type="text" 
                     value={newCatName} 
                     onChange={(e) => setNewCatName(e.target.value)}
@@ -358,6 +369,7 @@ export const InterviewEditor: React.FC<InterviewEditorProps> = ({ template, onUp
                     className="flex-1 px-5 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-white"
                 />
                 <button 
+                    id="editor-add-category-btn"
                     onClick={addCategory}
                     className="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition flex items-center gap-2 shadow-sm shadow-primary/30"
                 >

@@ -67,3 +67,31 @@ This project is a standard React application. No API key is required as it runs 
 3.  **Score**: Click on questions to open the feedback modal and select a rating.
 4.  **Finish**: Click "Finish & Save" to store the result.
 5.  **Analyze**: Go to the **Statistics** tab to see how candidates compare.
+
+## 👨‍💻 Developer Guide
+
+### Testing the Onboarding Tour
+The onboarding tour runs automatically for new users. To simulate a new user experience and trigger the tour again:
+
+1.  Open your browser's Developer Tools (F12).
+2.  Go to the **Application** tab (Chrome/Edge) or **Storage** tab (Firefox).
+3.  Expand **Local Storage** and select the application URL.
+4.  Find the key `ivp_tour_completed` and delete it.
+5.  Refresh the page.
+
+Alternatively, run this command in the browser console:
+```javascript
+localStorage.removeItem('ivp_tour_completed'); location.reload();
+```
+
+### Resetting Application Data
+To completely reset the application (including all templates, results, and settings):
+1.  Run `localStorage.clear()` in the console.
+2.  Refresh the page.
+The app will regenerate the default "Entry Level Full Stack Developer" template.
+
+### Styling & CSS
+The project uses **Tailwind CSS v4**.
+*   Configuration is handled in `vite.config.ts` via the `@tailwindcss/vite` plugin.
+*   Custom theme variables and animations are defined in `src/index.css` using the `@theme` directive.
+*   Do not use `tailwind.config.js` as it is not needed for the v4 Vite integration.

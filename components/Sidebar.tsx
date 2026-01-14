@@ -10,6 +10,8 @@ interface SidebarProps {
   activeTemplateId: string | null;
   activeResultId: string | null;
   activeRunId: string | null;
+  isOpen: boolean;
+  onClose: () => void;
   onSelectTemplate: (id: string) => void;
   onSelectResult: (id: string) => void;
   onSelectRun: (id: string) => void;
@@ -30,6 +32,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeTemplateId,
   activeResultId,
   activeRunId,
+  isOpen,
+  onClose,
   onSelectTemplate,
   onSelectResult,
   onSelectRun,
@@ -72,7 +76,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
   );
 
   return (
-    <div className="w-72 bg-primary text-slate-100 flex flex-col h-full border-r border-primary/50 shadow-xl z-20">
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-20 md:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      <div className={`
+        fixed md:static inset-y-0 left-0 z-30
+        w-72 bg-primary text-slate-100 flex flex-col h-full border-r border-primary/50 shadow-xl
+        transform transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
+      `}>
       <div className="p-4 border-b border-white/10 flex justify-between items-center bg-primary/50">
         <h1 className="text-xl font-bold flex items-center gap-2 text-white tracking-tight">
           <Briefcase className="w-6 h-6 shrink-0 text-accent" />
@@ -149,6 +167,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onToggle={() => setIsTemplatesOpen(!isTemplatesOpen)}
             action={
                 <button 
+                    id="sidebar-create-template-btn"
                     onClick={onCreateTemplate} 
                     className="p-1 hover:bg-white/10 rounded text-accent hover:text-white transition" 
                     title="Create New Template"
@@ -237,5 +256,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
       </div>
     </div>
+    </>
   );
 };

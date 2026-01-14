@@ -12,13 +12,33 @@ import { DEFAULT_SETTINGS } from './constants';
 import { ToastProvider, useToast } from './components/Toast';
 import { ConfirmProvider, useConfirm } from './components/ConfirmModal';
 
+import { Menu } from 'lucide-react';
+
+import { OnboardingTour } from './components/OnboardingTour';
+
 const AppContent: React.FC = () => {
   // --- Hooks ---
   const { showToast } = useToast();
   const { confirm } = useConfirm();
 
   // --- State ---
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [templates, setTemplates] = useState<InterviewTemplate[]>([]);
+  const [runTour, setRunTour] = useState(false);
+  const [tourStep, setTourStep] = useState(0);
+
+  useEffect(() => {
+    const tourCompleted = localStorage.getItem('ivp_tour_completed');
+    if (!tourCompleted) {
+      setRunTour(true);
+    }
+  }, []);
+
+  const handleTourFinish = () => {
+    setRunTour(false);
+    setTourStep(0);
+    localStorage.setItem('ivp_tour_completed', 'true');
+  };
   const [results, setResults] = useState<InterviewResult[]>([]);
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [runs, setRuns] = useState<RecruitmentRun[]>([]);
@@ -247,7 +267,13 @@ const defaultTemplate: InterviewTemplate = {
     setViewMode('EDITOR');
     setActiveResultId(null);
     setActiveRunId(null);
+    setIsSidebarOpen(false);
     showToast('New template created', 'success');
+    
+    // Advance tour step with a delay to allow Editor to render
+    if (runTour && tourStep === 0) {
+        setTimeout(() => setTourStep(1), 500);
+    }
   };
 
   const handleDeleteTemplate = async (id: string) => {
@@ -334,11 +360,28 @@ const defaultTemplate: InterviewTemplate = {
     setTemplates(templates.map(t => t.id === updated.id ? updated : t));
   };
 
+  const handleCategoryAdded = () => {
+    if (runTour && tourStep === 2) {
+        setTimeout(() => setTourStep(3), 400);
+    }
+  };
+
+  const handleQuestionAdded = () => {
+    if (runTour && tourStep === 3) {
+        setTimeout(() => setTourStep(4), 400);
+    }
+  };
+
   const handleStartInterview = () => {
     if (!activeTemplateId) return;
     setViewMode('EXECUTION');
     setActiveResultId(null); // New result
     setActiveRunId(null);
+    setIsSidebarOpen(false);
+
+    if (runTour && tourStep === 5) {
+        handleTourFinish();
+    }
   };
 
   const handleSaveResult = (result: InterviewResult) => {
@@ -372,6 +415,7 @@ const defaultTemplate: InterviewTemplate = {
     setViewMode('RUN_DETAILS');
     setActiveTemplateId(null);
     setActiveResultId(null);
+    setIsSidebarOpen(false);
     showToast('New recruitment run created', 'success');
   };
 
@@ -380,6 +424,7 @@ const defaultTemplate: InterviewTemplate = {
       setViewMode('RUN_DETAILS');
       setActiveTemplateId(null);
       setActiveResultId(null);
+      setIsSidebarOpen(false);
   };
 
   const handleSelectResult = (id: string) => {
@@ -387,6 +432,7 @@ const defaultTemplate: InterviewTemplate = {
       setViewMode('EXECUTION');
       setActiveTemplateId(null);
       setActiveRunId(null);
+      setIsSidebarOpen(false);
   };
 
   const handleUpdateRun = (run: RecruitmentRun) => {
@@ -415,7 +461,13 @@ const defaultTemplate: InterviewTemplate = {
   const activeRun = runs.find(r => r.id === activeRunId);
 
   return (
-    <div className="flex h-screen w-full bg-white font-sans text-slate-900">
+    <div className="flex h-screen w-full bg-white font-sans text-slate-900 relative">
+      <OnboardingTour 
+        runTour={runTour} 
+        onTourFinish={handleTourFinish} 
+        stepIndex={tourStep}
+        setStepIndex={setTourStep}
+      />
       <Sidebar
         templates={templates}
         results={results}
@@ -423,7 +475,9 @@ const defaultTemplate: InterviewTemplate = {
         activeTemplateId={activeTemplateId}
         activeResultId={activeResultId}
         activeRunId={activeRunId}
-        onSelectTemplate={(id) => { setActiveTemplateId(id); setViewMode('EDITOR'); setActiveResultId(null); setActiveRunId(null); }}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        onSelectTemplate={(id) => { setActiveTemplateId(id); setViewMode('EDITOR'); setActiveResultId(null); setActiveRunId(null); setIsSidebarOpen(false); }}
         onSelectResult={handleSelectResult}
         onSelectRun={handleSelectRun}
         onCreateTemplate={handleCreateTemplate}
@@ -433,10 +487,19 @@ const defaultTemplate: InterviewTemplate = {
         onDeleteRun={handleDeleteRun}
         onDuplicateTemplate={handleDuplicateTemplate}
         viewMode={viewMode}
-        setViewMode={setViewMode}
+        setViewMode={(mode) => { setViewMode(mode); setIsSidebarOpen(false); }}
       />
 
-      <main className="flex-1 h-full overflow-hidden relative">
+      <main className="flex-1 h-full overflow-hidden relative flex flex-col">
+        {/* Mobile Header */}
+        <div className="md:hidden bg-white border-b border-gray-200 p-4 flex items-center gap-3 shadow-sm z-10 shrink-0">
+            <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 text-gray-600 hover:bg-gray-100 rounded-md">
+                <Menu className="w-6 h-6" />
+            </button>
+            <h1 className="font-bold text-lg text-primary">InterViewPoint</h1>
+        </div>
+        
+        <div className="flex-1 overflow-hidden relative">
         {viewMode === 'SETTINGS' ? (
           <SettingsEditor settings={settings} onSave={handleSettingsSave} />
         ) : viewMode === 'STATISTICS' ? (
@@ -463,6 +526,8 @@ const defaultTemplate: InterviewTemplate = {
             template={activeTemplate} 
             onUpdate={handleUpdateTemplate}
             onStartInterview={handleStartInterview}
+            onCategoryAdded={handleCategoryAdded}
+            onQuestionAdded={handleQuestionAdded}
           />
         ) : viewMode === 'EXECUTION' && (activeTemplate || activeResult) ? (
            <InterviewExecution
@@ -482,6 +547,7 @@ const defaultTemplate: InterviewTemplate = {
             <p>Select a template to edit or start an interview.</p>
           </div>
         )}
+        </div>
       </main>
     </div>
   );
