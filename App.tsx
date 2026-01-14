@@ -220,6 +220,13 @@ const App: React.FC = () => {
       setActiveResultId(null);
   };
 
+  const handleSelectResult = (id: string) => {
+      setActiveResultId(id);
+      setViewMode('EXECUTION');
+      setActiveTemplateId(null);
+      setActiveRunId(null);
+  };
+
   const handleUpdateRun = (run: RecruitmentRun) => {
     setRuns(runs.map(r => r.id === run.id ? run : r));
   };
@@ -249,7 +256,7 @@ const App: React.FC = () => {
         activeResultId={activeResultId}
         activeRunId={activeRunId}
         onSelectTemplate={(id) => { setActiveTemplateId(id); setViewMode('EDITOR'); setActiveResultId(null); setActiveRunId(null); }}
-        onSelectResult={(id) => { setActiveResultId(id); setViewMode('EXECUTION'); setActiveTemplateId(null); setActiveRunId(null); }}
+        onSelectResult={handleSelectResult}
         onSelectRun={handleSelectRun}
         onCreateTemplate={handleCreateTemplate}
         onCreateRun={handleCreateRun}
@@ -265,7 +272,10 @@ const App: React.FC = () => {
         {viewMode === 'SETTINGS' ? (
           <SettingsEditor settings={settings} onSave={handleSettingsSave} />
         ) : viewMode === 'STATISTICS' ? (
-          <GlobalStatistics results={results} />
+          <GlobalStatistics 
+            results={results} 
+            onSelectResult={handleSelectResult} 
+          />
         ) : viewMode === 'CALENDAR' ? (
           <CalendarView 
             runs={runs} 
@@ -278,6 +288,7 @@ const App: React.FC = () => {
             results={results.filter(r => r.recruitmentRunId === activeRun.id)}
             onUpdateRun={handleUpdateRun}
             onDeleteRun={handleDeleteRun}
+            onSelectResult={handleSelectResult}
           />
         ) : viewMode === 'EDITOR' && activeTemplate ? (
           <InterviewEditor 

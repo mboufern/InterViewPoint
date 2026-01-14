@@ -4,10 +4,13 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ReferenceLine, ScatterChart, Scatter, ZAxis
 } from 'recharts';
-import { BarChart3, Trophy, Activity, Grid, Users } from 'lucide-react';
+import { BarChart3, Trophy, Activity, Grid, Users, Download } from 'lucide-react';
+import { exportToYaml, downloadFile } from '../utils';
 
 interface GlobalStatisticsProps {
   results: InterviewResult[];
+  onSelectResult?: (id: string) => void;
+  title?: string;
 }
 
 // Custom Tooltip for Charts
@@ -33,11 +36,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return null;
 };
 
-export const GlobalStatistics: React.FC<GlobalStatisticsProps> = ({ results }) => {
+export const GlobalStatistics: React.FC<GlobalStatisticsProps> = ({ results, onSelectResult, title }) => {
   
   // --- 1. Leaderboard Data ---
   const leaderboardData = useMemo(() => {
     return results.map(r => ({
+      id: r.id,
       name: r.candidateName,
       score: r.maxPossibleScore > 0 ? (r.totalScore / r.maxPossibleScore) * 100 : 0,
       rawScore: r.totalScore,
@@ -128,6 +132,20 @@ export const GlobalStatistics: React.FC<GlobalStatisticsProps> = ({ results }) =
       return counts;
   }, [results]);
 
+  const handleExport = () => {
+      const dataToExport = {
+          generatedAt: new Date().toISOString(),
+          title: title || 'Global Statistics',
+          count: results.length,
+          leaderboard: leaderboardData,
+          distribution: distributionData,
+          heatmap: heatmapData,
+          histogram: histogramData
+      };
+      const yamlStr = exportToYaml(dataToExport);
+      downloadFile(yamlStr, `${(title || 'Global_Statistics').replace(/\s+/g, '_')}_Report.yaml`, 'text/yaml');
+  };
+
   if (results.length === 0) {
       return (
           <div className="flex flex-col items-center justify-center h-full bg-gray-50 text-gray-400">
@@ -144,11 +162,17 @@ export const GlobalStatistics: React.FC<GlobalStatisticsProps> = ({ results }) =
         <div>
             <div className="flex items-center gap-2 text-gray-400 text-xs uppercase font-bold tracking-wider mb-1">
                 <Activity className="w-3 h-3" />
-                <span>Statistics</span>
+                <span>Analytics</span>
             </div>
+            <h1 className="text-2xl font-bold text-gray-900">{title || 'Global Statistics'}</h1>
         </div>
-        <div className="text-sm text-gray-500 font-medium bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
-            {results.length} Interviews Analyzed
+        <div className="flex gap-3 items-center">
+            <div className="text-sm text-gray-500 font-medium bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
+                {results.length} Interviews
+            </div>
+            <button onClick={handleExport} className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-gray-700 transition font-medium text-xs shadow-sm">
+                <Download className="w-3.5 h-3.5" /> Export Data
+            </button>
         </div>
       </div>
 
@@ -162,6 +186,7 @@ export const GlobalStatistics: React.FC<GlobalStatisticsProps> = ({ results }) =
                     <div className="flex items-center gap-2 mb-6">
                         <Trophy className="w-5 h-5 text-warning" />
                         <h2 className="font-bold text-gray-800">Candidate Leaderboard</h2>
+                        {onSelectResult && <span className="text-xs text-gray-400 font-normal ml-auto">(Click to view)</span>}
                     </div>
                     <div className="flex-1">
                         <ResponsiveContainer width="100%" height="100%">
@@ -198,7 +223,14 @@ export const GlobalStatistics: React.FC<GlobalStatisticsProps> = ({ results }) =
                                     }}
                                 />
                                 <ReferenceLine x={100} stroke="#dc2626" strokeDasharray="3 3" label={{ position: 'top', value: 'Max', fill: '#dc2626', fontSize: 10 }} />
-                                <Bar dataKey="score" fill="#144346" radius={[0, 4, 4, 0]} barSize={20} />
+                                <Bar 
+                                    dataKey="score" 
+                                    fill="#144346" 
+                                    radius={[0, 4, 4, 0]} 
+                                    barSize={20} 
+                                    onClick={(data) => onSelectResult && onSelectResult(data.id)} 
+                                    style={{ cursor: onSelectResult ? 'pointer' : 'default' }}
+                                />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
