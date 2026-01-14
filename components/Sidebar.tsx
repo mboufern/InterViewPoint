@@ -64,7 +64,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const SectionHeader = ({ title, isOpen, onToggle, action }: { title: string, isOpen: boolean, onToggle: () => void, action?: React.ReactNode }) => (
     <div className="flex items-center justify-between mb-1 px-2 py-1.5 hover:bg-white/5 rounded transition cursor-pointer select-none" onClick={onToggle}>
         <div className="flex items-center gap-2">
-            {isOpen ? <ChevronDown className="w-3 h-3 text-slate-400" /> : <ChevronRight className="w-3 h-3 text-slate-400" />}
+            {isOpen ? <ChevronDown className="w-3 h-3 shrink-0 text-slate-400" /> : <ChevronRight className="w-3 h-3 shrink-0 text-slate-400" />}
             <h2 className="text-xs uppercase font-bold text-accent/70 tracking-wider">{title}</h2>
         </div>
         {action && <div onClick={e => e.stopPropagation()}>{action}</div>}
@@ -75,7 +75,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <div className="w-72 bg-primary text-slate-100 flex flex-col h-full border-r border-primary/50 shadow-xl z-20">
       <div className="p-4 border-b border-white/10 flex justify-between items-center bg-primary/50">
         <h1 className="text-xl font-bold flex items-center gap-2 text-white tracking-tight">
-          <Briefcase className="w-6 h-6 text-accent" />
+          <Briefcase className="w-6 h-6 shrink-0 text-accent" />
           <span className="text-white">InterViewPoint</span>
         </h1>
         <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".yaml,.yml" />
@@ -84,7 +84,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           className="p-2 hover:bg-white/10 rounded-full text-accent hover:text-white transition" 
           title="Import YAML"
         >
-          <Upload className="w-4 h-4" />
+          <Upload className="w-4 h-4 shrink-0" />
         </button>
       </div>
 
@@ -102,7 +102,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     className="p-1 hover:bg-white/10 rounded text-accent hover:text-white transition" 
                     title="Create New Run"
                 >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="w-4 h-4 shrink-0" />
                 </button>
             }
           />
@@ -113,7 +113,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     className={`group flex items-center gap-2 p-2 rounded-md text-sm cursor-pointer transition-all duration-200 ${viewMode === 'CALENDAR' ? 'bg-accent text-primary font-medium shadow-md' : 'hover:bg-white/5 text-slate-300 hover:text-white'}`}
                     onClick={() => setViewMode('CALENDAR')}
                 >
-                    <Calendar className={`w-4 h-4 ${viewMode === 'CALENDAR' ? 'text-primary' : 'text-slate-500'}`} />
+                    <Calendar className={`w-4 h-4 shrink-0 ${viewMode === 'CALENDAR' ? 'text-primary' : 'text-slate-500'}`} />
                     <span>Calendar View</span>
                 </div>
 
@@ -127,11 +127,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onSelectRun(run.id)}
                 >
                     <div className="flex items-center gap-2 truncate">
-                    <Layers className={`w-4 h-4 ${activeRunId === run.id && viewMode === 'RUN_DETAILS' ? 'text-primary' : 'text-slate-500'}`} />
+                    <Layers className={`w-4 h-4 shrink-0 ${activeRunId === run.id && viewMode === 'RUN_DETAILS' ? 'text-primary' : 'text-slate-500'}`} />
                     <span className="truncate">{run.name}</span>
                     </div>
                     <button onClick={(e) => { e.stopPropagation(); onDeleteRun(run.id); }} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 hover:text-red-400 rounded transition-opacity" title="Delete">
-                        <Trash2 className="w-3 h-3" />
+                        <Trash2 className="w-3 h-3 shrink-0" />
                     </button>
                 </div>
                 ))}
@@ -153,7 +153,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     className="p-1 hover:bg-white/10 rounded text-accent hover:text-white transition" 
                     title="Create New Template"
                 >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="w-4 h-4 shrink-0" />
                 </button>
             }
           />
@@ -170,15 +170,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onSelectTemplate(t.id)}
                 >
                     <div className="flex items-center gap-2 truncate">
-                    <FileText className={`w-4 h-4 ${activeTemplateId === t.id && viewMode === 'EDITOR' ? 'text-primary' : 'text-slate-500'}`} />
+                    <FileText className={`w-4 h-4 shrink-0 ${activeTemplateId === t.id && viewMode === 'EDITOR' ? 'text-primary' : 'text-slate-500'}`} />
                     <span className="truncate">{t.name}</span>
                     </div>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onClick={(e) => { e.stopPropagation(); onDuplicateTemplate(t.id); }} className={`p-1 rounded ${activeTemplateId === t.id ? 'hover:bg-primary/20' : 'hover:bg-white/20'}`} title="Duplicate">
-                        <Copy className="w-3 h-3" />
+                        <Copy className="w-3 h-3 shrink-0" />
                     </button>
                     <button onClick={(e) => { e.stopPropagation(); onDeleteTemplate(t.id); }} className="p-1 hover:bg-red-500/20 hover:text-red-400 rounded" title="Delete">
-                        <Trash2 className="w-3 h-3" />
+                        <Trash2 className="w-3 h-3 shrink-0" />
                     </button>
                     </div>
                 </div>
@@ -208,7 +208,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     activeResultId === r.id && viewMode === 'EXECUTION' ? 'bg-white/10 text-accent font-medium shadow-md border-l-2 border-accent' : 'hover:bg-white/5 text-slate-300 hover:text-white'
                     }`}
                 >
-                    <History className={`w-4 h-4 ${activeResultId === r.id && viewMode === 'EXECUTION' ? 'text-accent' : 'text-slate-500'}`} />
+                    <History className={`w-4 h-4 shrink-0 ${activeResultId === r.id && viewMode === 'EXECUTION' ? 'text-accent' : 'text-slate-500'}`} />
                     <div className="truncate flex-1">
                     <div className="truncate">{r.candidateName}</div>
                     <div className="text-[10px] opacity-60 truncate">{r.templateName}</div>
@@ -225,14 +225,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={() => setViewMode('STATISTICS')}
             className={`w-full flex items-center gap-2 p-2 rounded text-sm transition ${viewMode === 'STATISTICS' ? 'bg-accent text-primary font-medium' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
           >
-              <BarChart3 className="w-4 h-4" />
+              <BarChart3 className="w-4 h-4 shrink-0" />
               <span>Statistics</span>
           </button>
           <button 
             onClick={() => setViewMode('SETTINGS')}
             className={`w-full flex items-center gap-2 p-2 rounded text-sm transition ${viewMode === 'SETTINGS' ? 'bg-accent text-primary font-medium' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
           >
-              <Settings className="w-4 h-4" />
+              <Settings className="w-4 h-4 shrink-0" />
               <span>Global Settings</span>
           </button>
       </div>

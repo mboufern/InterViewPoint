@@ -333,14 +333,14 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                 <h1 className="text-2xl font-bold text-gray-900">{candidateName}</h1>
                 {existingResult?.completedAt && (
                     <div className="flex items-center gap-1 text-xs text-gray-500 mt-1 font-medium">
-                        <Clock className="w-3 h-3" />
+                        <Clock className="w-3 h-3 shrink-0" />
                         <span>Completed: {formatDate(existingResult.completedAt)}</span>
                     </div>
                 )}
             </div>
           ) : (
             <div className="flex items-center gap-2">
-                <User className="w-5 h-5 text-gray-400" />
+                <User className="w-5 h-5 shrink-0 text-gray-400" />
                 <input 
                     type="text" 
                     value={candidateName}
@@ -366,10 +366,10 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
             {readOnly ? (
                <div className="flex gap-2">
                    <button onClick={() => setShowFinishModal(true)} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-gray-700 transition font-medium text-sm">
-                        <PieChart className="w-4 h-4" /> View Statistics
+                        <PieChart className="w-4 h-4 shrink-0" /> View Statistics
                    </button>
                    <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-gray-700 transition font-medium text-sm">
-                        <Download className="w-4 h-4" /> Export Result
+                        <Download className="w-4 h-4 shrink-0" /> Export Result
                    </button>
                </div>
             ) : (
@@ -526,13 +526,13 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                   <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                       <div>
                         <h3 className="text-xl font-bold text-primary flex items-center gap-2">
-                             <PieChart className="w-5 h-5 text-accent" />
+                             <PieChart className="w-5 h-5 shrink-0 text-accent" />
                              {readOnly ? `Interview Analysis: ${candidateName}` : 'Finish Interview'}
                         </h3>
                         <p className="text-xs text-gray-400 mt-1 uppercase tracking-wider font-bold">Statistics & Summary</p>
                       </div>
                       <button onClick={() => setShowFinishModal(false)} className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-200 rounded-full transition">
-                          <X className="w-5 h-5" />
+                          <X className="w-5 h-5 shrink-0" />
                       </button>
                   </div>
                   
@@ -543,7 +543,7 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                               <div className="flex items-center justify-between mb-6">
                                   <h4 className="text-sm font-bold text-gray-600 uppercase tracking-wide">Category Proficiency</h4>
                                   <button onClick={() => setZoomChart('RADAR')} className="p-1.5 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-lg transition" title="Zoom Chart">
-                                      <Maximize2 className="w-4 h-4" />
+                                      <Maximize2 className="w-4 h-4 shrink-0" />
                                   </button>
                               </div>
                               <div className="w-full h-[400px] relative">
@@ -562,7 +562,7 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                               <div className="flex items-center justify-between mb-6">
                                   <h4 className="text-sm font-bold text-gray-600 uppercase tracking-wide">Detailed Question Scores</h4>
                                   <button onClick={() => setZoomChart('AREA')} className="p-1.5 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-lg transition" title="Zoom Chart">
-                                      <Maximize2 className="w-4 h-4" />
+                                      <Maximize2 className="w-4 h-4 shrink-0" />
                                   </button>
                               </div>
                               <div className="w-full h-[400px]">
@@ -574,7 +574,7 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                       <div className="bg-gray-50/50 rounded-xl p-6 border border-gray-100">
                            {readOnly && recruitmentRunId && (
                               <div className="mb-4 p-3 bg-blue-50 text-blue-800 rounded-lg text-sm border border-blue-100 flex items-center gap-2">
-                                   <Layers className="w-4 h-4" />
+                                   <Layers className="w-4 h-4 shrink-0" />
                                    <span className="font-bold">Recruitment Run:</span>
                                    <span>{runs.find(r => r.id === recruitmentRunId)?.name || 'Unknown Run'}</span>
                               </div>
@@ -599,7 +599,7 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                           )}
 
                           <div className="flex items-center gap-2 mb-3">
-                            <FileText className="w-4 h-4 text-primary" />
+                            <FileText className="w-4 h-4 shrink-0 text-primary" />
                             <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wide">
                                 {readOnly && !isEditing ? 'Candidate Summary' : 'Summary & Notes'}
                             </h4>
