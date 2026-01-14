@@ -527,7 +527,7 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                       <div>
                         <h3 className="text-xl font-bold text-primary flex items-center gap-2">
                              <PieChart className="w-5 h-5 text-accent" />
-                             {readOnly ? 'Interview Analysis' : 'Finish Interview'}
+                             {readOnly ? `Interview Analysis: ${candidateName}` : 'Finish Interview'}
                         </h3>
                         <p className="text-xs text-gray-400 mt-1 uppercase tracking-wider font-bold">Statistics & Summary</p>
                       </div>
@@ -659,8 +659,8 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
             zoomChart === 'RADAR' ? 'Category Proficiency' : 'Detailed Question Scores'
         }
         description={
-            zoomChart === 'RADAR' ? 'Visual representation of candidate\'s performance across different categories.' :
-            'Cumulative score breakdown by question.'
+            zoomChart === 'RADAR' ? `${candidateName}'s performance across different categories.` :
+            `${candidateName}'s cumulative score breakdown by question.`
         }
         runInfo={runInfo}
       >
