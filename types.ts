@@ -72,6 +72,7 @@ export interface InterviewResult {
   templateName: string;
   candidateName: string;
   date: string;
+  completedAt?: string;
   categories: Category[];
   questions: QuestionResult[];
   totalScore: number;
@@ -89,4 +90,4 @@ export interface AppSettings {
   indirect: Record<IndirectFeedback, FeedbackSetting>;
 }
 
-export type ViewMode = 'EDITOR' | 'EXECUTION' | 'DASHBOARD' | 'SETTINGS' | 'STATISTICS' | 'RUNS' | 'RUN_DETAILS';
+export type ViewMode = 'EDITOR' | 'EXECUTION' | 'DASHBOARD' | 'SETTINGS' | 'STATISTICS' | 'RUNS' | 'RUN_DETAILS' | 'CALENDAR';

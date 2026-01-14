@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { InterviewTemplate, InterviewResult, AnswerData, QuestionResult, AppSettings, DirectFeedback, IndirectFeedback, RecruitmentRun } from '../types';
 import { FEEDBACK_COLORS, CUSTOM_FEEDBACK_COLOR } from '../constants';
-import { generateId, exportToYaml, downloadFile } from '../utils';
-import { Download, User, FileText, X, PieChart, Layers } from 'lucide-react';
+import { generateId, exportToYaml, downloadFile, formatDate } from '../utils';
+import { Download, User, FileText, X, PieChart, Layers, Clock } from 'lucide-react';
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
@@ -180,6 +180,7 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
           templateName: currentTemplate.name,
           candidateName,
           date: existingResult?.date || new Date().toISOString(),
+          completedAt: new Date().toISOString(),
           categories: currentTemplate.categories,
           questions: questionResults,
           totalScore: scoreStats.total,
@@ -234,7 +235,15 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
              <span>{currentTemplate.name}</span>
           </div>
           {readOnly ? (
-            <h1 className="text-2xl font-bold text-gray-900">{candidateName}</h1>
+            <div>
+                <h1 className="text-2xl font-bold text-gray-900">{candidateName}</h1>
+                {existingResult?.completedAt && (
+                    <div className="flex items-center gap-1 text-xs text-gray-500 mt-1 font-medium">
+                        <Clock className="w-3 h-3" />
+                        <span>Completed: {formatDate(existingResult.completedAt)}</span>
+                    </div>
+                )}
+            </div>
           ) : (
             <div className="flex items-center gap-2">
                 <User className="w-5 h-5 text-gray-400" />

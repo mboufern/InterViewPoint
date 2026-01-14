@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Plus, FileText, Upload, Trash2, Copy, History, Settings, Briefcase, BarChart3, Layers, ChevronDown, ChevronRight } from 'lucide-react';
+import { Plus, FileText, Upload, Trash2, Copy, History, Settings, Briefcase, BarChart3, Layers, ChevronDown, ChevronRight, Calendar } from 'lucide-react';
 import { InterviewTemplate, InterviewResult, ViewMode, RecruitmentRun } from '../types';
 import { parseYaml } from '../utils';
 
@@ -109,6 +109,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           
           {isRunsOpen && (
               <div className="space-y-1 pl-2">
+                <div 
+                    className={`group flex items-center gap-2 p-2 rounded-md text-sm cursor-pointer transition-all duration-200 ${viewMode === 'CALENDAR' ? 'bg-accent text-primary font-medium shadow-md' : 'hover:bg-white/5 text-slate-300 hover:text-white'}`}
+                    onClick={() => setViewMode('CALENDAR')}
+                >
+                    <Calendar className={`w-4 h-4 ${viewMode === 'CALENDAR' ? 'text-primary' : 'text-slate-500'}`} />
+                    <span>Calendar View</span>
+                </div>
+
                 {runs.length === 0 && <p className="text-xs text-slate-400 italic px-2 py-1">No active runs.</p>}
                 {runs.map(run => (
                 <div

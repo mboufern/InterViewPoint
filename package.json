@@ -10,21 +10,25 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.20",
+    "@fullcalendar/daygrid": "^6.1.20",
+    "@fullcalendar/interaction": "^6.1.20",
+    "@fullcalendar/react": "^6.1.20",
+    "clsx": "^2.1.0",
+    "js-yaml": "^4.1.0",
+    "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "lucide-react": "^0.344.0",
     "recharts": "^2.15.0",
-    "js-yaml": "^4.1.0",
-    "clsx": "^2.1.0",
     "tailwind-merge": "^2.2.1"
   },
   "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
-    "@types/js-yaml": "^4.0.9",
     "@vitejs/plugin-react": "^4.2.1",
+    "gh-pages": "^6.1.1",
     "typescript": "^5.2.2",
-    "vite": "^5.2.0",
-    "gh-pages": "^6.1.1"
+    "vite": "^5.2.0"
   }
 }

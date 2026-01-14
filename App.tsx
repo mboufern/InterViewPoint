@@ -5,6 +5,7 @@ import { InterviewExecution } from './components/InterviewExecution';
 import { SettingsEditor } from './components/SettingsEditor';
 import { GlobalStatistics } from './components/GlobalStatistics';
 import { RunDetails } from './components/RunDetails';
+import { CalendarView } from './components/CalendarView';
 import { InterviewTemplate, InterviewResult, ViewMode, AppSettings, RecruitmentRun } from './types';
 import { generateId } from './utils';
 import { INITIAL_CATEGORIES, DEFAULT_SETTINGS } from './constants';
@@ -265,6 +266,12 @@ const App: React.FC = () => {
           <SettingsEditor settings={settings} onSave={handleSettingsSave} />
         ) : viewMode === 'STATISTICS' ? (
           <GlobalStatistics results={results} />
+        ) : viewMode === 'CALENDAR' ? (
+          <CalendarView 
+            runs={runs} 
+            results={results} 
+            onSelectRun={handleSelectRun} 
+          />
         ) : viewMode === 'RUN_DETAILS' && activeRun ? (
           <RunDetails 
             run={activeRun}
