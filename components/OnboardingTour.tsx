@@ -71,6 +71,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ runTour, stepInd
       continuous
       showSkipButton
       showProgress
+      hideCloseButton
       hideBackButton
       disableOverlayClose
       spotlightClicks

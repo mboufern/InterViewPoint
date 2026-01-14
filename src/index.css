@@ -36,3 +36,19 @@
     100% { opacity: 1; transform: translateY(0); }
   }
 }
+
+@layer base {
+  button, 
+  [role="button"],
+  select,
+  input[type="file"],
+  input[type="checkbox"],
+  input[type="radio"] {
+    cursor: pointer;
+  }
+  
+  button:disabled,
+  [disabled] {
+    cursor: not-allowed;
+  }
+}
