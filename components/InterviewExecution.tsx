@@ -2,12 +2,13 @@ import React, { useState, useMemo } from 'react';
 import { InterviewTemplate, InterviewResult, AnswerData, QuestionResult, AppSettings, DirectFeedback, IndirectFeedback, RecruitmentRun } from '../types';
 import { FEEDBACK_COLORS, CUSTOM_FEEDBACK_COLOR } from '../constants';
 import { generateId, exportToYaml, downloadFile, formatDate } from '../utils';
-import { Download, User, FileText, X, PieChart, Layers, Clock } from 'lucide-react';
+import { Download, User, FileText, X, PieChart, Layers, Clock, Maximize2 } from 'lucide-react';
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import { useToast } from './Toast';
+import { ChartZoomModal } from './ChartZoomModal';
 
 interface InterviewExecutionProps {
   template?: InterviewTemplate;
@@ -64,6 +65,7 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
   const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null);
   const [showFinishModal, setShowFinishModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [zoomChart, setZoomChart] = useState<'RADAR' | 'AREA' | null>(null);
 
   const currentTemplate = useMemo(() => {
     if (template) return template;
@@ -226,6 +228,95 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
     }
     return CUSTOM_FEEDBACK_COLOR;
   };
+
+  const activeRun = useMemo(() => 
+    runs.find(r => r.id === recruitmentRunId), 
+  [recruitmentRunId, runs]);
+
+  const runInfo = activeRun ? {
+      name: activeRun.name,
+      dates: `${new Date(activeRun.startDate).toLocaleDateString()} - ${activeRun.endDate ? new Date(activeRun.endDate).toLocaleDateString() : 'Ongoing'}`
+  } : undefined;
+
+  const renderRadarChart = () => (
+    <ResponsiveContainer width="100%" height="100%">
+        <RadarChart cx="50%" cy="50%" outerRadius="75%" data={statsData.radarData}>
+            <PolarGrid stroke="#e5e7eb" strokeDasharray="4 4" />
+            <PolarAngleAxis 
+                dataKey="subject" 
+                tick={{ fill: '#4b5563', fontSize: 12, fontWeight: 600 }} 
+            />
+            <PolarRadiusAxis 
+                angle={30} 
+                domain={[0, 100]} 
+                tick={false} 
+                axisLine={false} 
+            />
+            <Radar
+                name="Proficiency"
+                dataKey="proficiency"
+                stroke="#144346"
+                strokeWidth={2}
+                fill="#144346"
+                fillOpacity={0.2}
+            />
+            <Tooltip content={<CustomTooltip />} />
+        </RadarChart>
+    </ResponsiveContainer>
+  );
+
+  const renderAreaChart = () => (
+    <ResponsiveContainer width="100%" height="100%">
+        <AreaChart
+            data={statsData.areaData}
+            margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+        >
+            <defs>
+              <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#144346" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#144346" stopOpacity={0.1}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+            <XAxis 
+              dataKey="name" 
+              tick={{ fontSize: 11, fill: '#94a3b8' }} 
+              axisLine={false} 
+              tickLine={false}
+              dy={10} 
+            />
+            <YAxis 
+              tick={{ fontSize: 11, fill: '#94a3b8' }} 
+              axisLine={false} 
+              tickLine={false} 
+            />
+            <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#e2e8f0', strokeWidth: 1 }} />
+            <Area 
+              type="monotone" 
+              dataKey="score" 
+              stackId="1" 
+              stroke="#144346" 
+              fill="url(#colorScore)" 
+              name="Obtained"
+              strokeWidth={2}
+            />
+            <Area 
+              type="monotone" 
+              dataKey="missed" 
+              stackId="1" 
+              stroke="#cbd5e1" 
+              fill="#f1f5f9" 
+              name="Missed" 
+            />
+            <Legend 
+              verticalAlign="top" 
+              height={36} 
+              iconType="circle"
+              wrapperStyle={{ fontSize: '12px', color: '#64748b' }} 
+            />
+        </AreaChart>
+    </ResponsiveContainer>
+  );
 
   return (
     <div className="flex flex-col h-full bg-gray-50 relative">
@@ -449,33 +540,15 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                           {/* Left: Radar Chart (Proficiency) */}
                           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col">
-                              <h4 className="text-sm font-bold text-gray-600 mb-6 uppercase tracking-wide text-center">Category Proficiency</h4>
+                              <div className="flex items-center justify-between mb-6">
+                                  <h4 className="text-sm font-bold text-gray-600 uppercase tracking-wide">Category Proficiency</h4>
+                                  <button onClick={() => setZoomChart('RADAR')} className="p-1.5 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-lg transition" title="Zoom Chart">
+                                      <Maximize2 className="w-4 h-4" />
+                                  </button>
+                              </div>
                               <div className="w-full h-[400px] relative">
                                   {statsData.radarData.length > 2 ? (
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <RadarChart cx="50%" cy="50%" outerRadius="75%" data={statsData.radarData}>
-                                            <PolarGrid stroke="#e5e7eb" strokeDasharray="4 4" />
-                                            <PolarAngleAxis 
-                                                dataKey="subject" 
-                                                tick={{ fill: '#4b5563', fontSize: 12, fontWeight: 600 }} 
-                                            />
-                                            <PolarRadiusAxis 
-                                                angle={30} 
-                                                domain={[0, 100]} 
-                                                tick={false} 
-                                                axisLine={false} 
-                                            />
-                                            <Radar
-                                                name="Proficiency"
-                                                dataKey="proficiency"
-                                                stroke="#144346"
-                                                strokeWidth={2}
-                                                fill="#144346"
-                                                fillOpacity={0.2}
-                                            />
-                                            <Tooltip content={<CustomTooltip />} />
-                                        </RadarChart>
-                                    </ResponsiveContainer>
+                                    renderRadarChart()
                                   ) : (
                                     <div className="flex items-center justify-center h-full text-gray-400 text-sm italic border-2 border-dashed border-gray-100 rounded-lg">
                                         Not enough categories for radar chart (Need 3+)
@@ -486,58 +559,14 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
 
                           {/* Right: Stacked Area Chart (Detailed Scores) */}
                           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col">
-                              <h4 className="text-sm font-bold text-gray-600 mb-6 uppercase tracking-wide text-center">Detailed Question Scores</h4>
+                              <div className="flex items-center justify-between mb-6">
+                                  <h4 className="text-sm font-bold text-gray-600 uppercase tracking-wide">Detailed Question Scores</h4>
+                                  <button onClick={() => setZoomChart('AREA')} className="p-1.5 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-lg transition" title="Zoom Chart">
+                                      <Maximize2 className="w-4 h-4" />
+                                  </button>
+                              </div>
                               <div className="w-full h-[400px]">
-                                  <ResponsiveContainer width="100%" height="100%">
-                                      <AreaChart
-                                          data={statsData.areaData}
-                                          margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-                                      >
-                                          <defs>
-                                            <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#144346" stopOpacity={0.8}/>
-                                                <stop offset="95%" stopColor="#144346" stopOpacity={0.1}/>
-                                            </linearGradient>
-                                          </defs>
-                                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                          <XAxis 
-                                            dataKey="name" 
-                                            tick={{ fontSize: 11, fill: '#94a3b8' }} 
-                                            axisLine={false} 
-                                            tickLine={false}
-                                            dy={10} 
-                                          />
-                                          <YAxis 
-                                            tick={{ fontSize: 11, fill: '#94a3b8' }} 
-                                            axisLine={false} 
-                                            tickLine={false} 
-                                          />
-                                          <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#e2e8f0', strokeWidth: 1 }} />
-                                          <Area 
-                                            type="monotone" 
-                                            dataKey="score" 
-                                            stackId="1" 
-                                            stroke="#144346" 
-                                            fill="url(#colorScore)" 
-                                            name="Obtained"
-                                            strokeWidth={2}
-                                          />
-                                          <Area 
-                                            type="monotone" 
-                                            dataKey="missed" 
-                                            stackId="1" 
-                                            stroke="#cbd5e1" 
-                                            fill="#f1f5f9" 
-                                            name="Missed" 
-                                          />
-                                          <Legend 
-                                            verticalAlign="top" 
-                                            height={36} 
-                                            iconType="circle"
-                                            wrapperStyle={{ fontSize: '12px', color: '#64748b' }} 
-                                          />
-                                      </AreaChart>
-                                  </ResponsiveContainer>
+                                  {renderAreaChart()}
                               </div>
                           </div>
                       </div>
@@ -623,6 +652,21 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
               </div>
           </div>
       )}
+      <ChartZoomModal
+        isOpen={!!zoomChart}
+        onClose={() => setZoomChart(null)}
+        title={
+            zoomChart === 'RADAR' ? 'Category Proficiency' : 'Detailed Question Scores'
+        }
+        description={
+            zoomChart === 'RADAR' ? 'Visual representation of candidate\'s performance across different categories.' :
+            'Cumulative score breakdown by question.'
+        }
+        runInfo={runInfo}
+      >
+        {zoomChart === 'RADAR' && renderRadarChart()}
+        {zoomChart === 'AREA' && renderAreaChart()}
+      </ChartZoomModal>
     </div>
   );
 };

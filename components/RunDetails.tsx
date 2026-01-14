@@ -181,6 +181,10 @@ export const RunDetails: React.FC<RunDetailsProps> = ({ run, results, onUpdateRu
                         results={results} 
                         onSelectResult={onSelectResult}
                         title={`${run.name} Statistics`}
+                        runInfo={{
+                            name: run.name,
+                            dates: `${new Date(run.startDate).toLocaleDateString()} - ${run.endDate ? new Date(run.endDate).toLocaleDateString() : 'Ongoing'}`
+                        }}
                    />
                </div>
            )}

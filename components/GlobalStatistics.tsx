@@ -1,16 +1,21 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { InterviewResult } from '../types';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ReferenceLine, ScatterChart, Scatter, ZAxis
 } from 'recharts';
-import { BarChart3, Trophy, Activity, Grid, Users, Download } from 'lucide-react';
+import { BarChart3, Trophy, Activity, Grid, Users, Download, Maximize2 } from 'lucide-react';
 import { exportToYaml, downloadFile } from '../utils';
+import { ChartZoomModal } from './ChartZoomModal';
 
 interface GlobalStatisticsProps {
   results: InterviewResult[];
   onSelectResult?: (id: string) => void;
   title?: string;
+  runInfo?: {
+      name: string;
+      dates: string;
+  };
 }
 
 // Custom Tooltip for Charts
@@ -36,7 +41,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return null;
 };
 
-export const GlobalStatistics: React.FC<GlobalStatisticsProps> = ({ results, onSelectResult, title }) => {
+export const GlobalStatistics: React.FC<GlobalStatisticsProps> = ({ results, onSelectResult, title, runInfo }) => {
+  const [zoomChart, setZoomChart] = useState<'LEADERBOARD' | 'HISTOGRAM' | 'SCATTER' | 'HEATMAP' | null>(null);
   
   // --- 1. Leaderboard Data ---
   const leaderboardData = useMemo(() => {
@@ -146,6 +152,157 @@ export const GlobalStatistics: React.FC<GlobalStatisticsProps> = ({ results, onS
       downloadFile(yamlStr, `${(title || 'Global_Statistics').replace(/\s+/g, '_')}_Report.yaml`, 'text/yaml');
   };
 
+  const renderLeaderboard = () => (
+    <ResponsiveContainer width="100%" height="100%">
+        <BarChart 
+            data={leaderboardData} 
+            layout="vertical" 
+            margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
+        >
+            <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+            <XAxis type="number" domain={[0, 100]} hide />
+            <YAxis 
+                dataKey="name" 
+                type="category" 
+                width={100} 
+                tick={{ fontSize: 11, fontWeight: 500, fill: '#475569' }} 
+                axisLine={false}
+                tickLine={false}
+            />
+            <Tooltip 
+                cursor={{fill: '#f8fafc'}}
+                content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        return (
+                            <div className="bg-white p-3 border border-gray-100 shadow-xl rounded-lg text-xs">
+                                <div className="font-bold text-gray-900 mb-1">{data.name}</div>
+                                <div className="text-primary font-bold">{data.score.toFixed(1)}%</div>
+                                <div className="text-gray-400 mt-1">{data.rawScore}/{data.maxScore} pts</div>
+                                <div className="text-gray-300 italic">{data.date}</div>
+                            </div>
+                        )
+                    }
+                    return null;
+                }}
+            />
+            <ReferenceLine x={100} stroke="#dc2626" strokeDasharray="3 3" label={{ position: 'top', value: 'Max', fill: '#dc2626', fontSize: 10 }} />
+            <Bar 
+                dataKey="score" 
+                fill="#144346" 
+                radius={[0, 4, 4, 0]} 
+                barSize={20} 
+                onClick={(data) => {
+                     if(onSelectResult) onSelectResult(data.id);
+                     if(zoomChart) setZoomChart(null); // Close modal if clicking a bar in zoomed mode
+                }}
+                style={{ cursor: onSelectResult ? 'pointer' : 'default' }}
+            />
+        </BarChart>
+    </ResponsiveContainer>
+  );
+
+  const renderHistogram = () => (
+    <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={histogramData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+            <XAxis 
+                dataKey="range" 
+                tick={{ fontSize: 10, fill: '#64748b' }} 
+                axisLine={false} 
+                tickLine={false} 
+            />
+            <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
+            <Tooltip cursor={{fill: '#f8fafc'}} content={<CustomTooltip />} />
+            <Bar dataKey="count" name="Candidates" fill="#aef1cb" radius={[4, 4, 0, 0]} stroke="#144346" strokeWidth={1} />
+        </BarChart>
+    </ResponsiveContainer>
+  );
+
+  const renderScatter = () => (
+    <ResponsiveContainer width="100%" height="100%">
+        <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+            <XAxis 
+                dataKey="category" 
+                type="category" 
+                allowDuplicatedCategory={false} 
+                tick={{ fontSize: 12, fontWeight: 600, fill: '#334155' }}
+                axisLine={{ stroke: '#e2e8f0' }}
+                tickLine={false}
+            />
+            <YAxis 
+                type="number" 
+                dataKey="score" 
+                name="Score" 
+                unit="%" 
+                domain={[0, 100]} 
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 11, fill: '#64748b' }}
+            />
+            <ZAxis type="number" range={[50, 50]} />
+            <Tooltip 
+                cursor={{ strokeDasharray: '3 3' }} 
+                content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        return (
+                            <div className="bg-white p-2 border border-gray-200 shadow-lg rounded text-xs">
+                                <div className="font-bold">{data.candidate}</div>
+                                <div className="text-gray-500">{data.category}: {data.score.toFixed(0)}%</div>
+                            </div>
+                        );
+                    }
+                    return null;
+                }} 
+            />
+            <Scatter name="Scores" data={distributionData} fill="#144346" fillOpacity={0.6} />
+        </ScatterChart>
+    </ResponsiveContainer>
+  );
+
+  const renderHeatmap = () => (
+    <div className="overflow-x-auto h-full">
+        <table className="w-full text-sm text-left">
+            <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-100 sticky top-0 z-10 shadow-sm">
+                <tr>
+                    <th className="px-6 py-4 font-semibold bg-gray-50">Candidate</th>
+                    {heatmapData.categories.map(cat => (
+                        <th key={cat} className="px-6 py-4 font-semibold text-center bg-gray-50">{cat}</th>
+                    ))}
+                </tr>
+            </thead>
+            <tbody>
+                {heatmapData.rows.map((row, idx) => (
+                    <tr key={idx} className="border-b border-gray-50 hover:bg-gray-50/50 transition">
+                        <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{row.candidate}</td>
+                        {row.scores.map((s, i) => {
+                            const opacity = s.value !== null ? (s.value / 100) * 0.9 + 0.1 : 0;
+                            const bgColor = s.value !== null 
+                                ? `rgba(20, 67, 70, ${opacity})` 
+                                : '#f3f4f6';
+                            const textColor = s.value !== null && s.value > 50 ? 'white' : 'black';
+                            
+                            return (
+                                <td key={i} className="p-1">
+                                    <div 
+                                        className="w-full h-10 flex items-center justify-center rounded text-xs font-bold transition hover:scale-105 cursor-default"
+                                        style={{ backgroundColor: bgColor, color: textColor }}
+                                        title={s.value !== null ? `${s.value.toFixed(1)}%` : 'N/A'}
+                                    >
+                                        {s.value !== null ? s.value.toFixed(0) : '-'}
+                                    </div>
+                                </td>
+                            );
+                        })}
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    </div>
+  );
+
   if (results.length === 0) {
       return (
           <div className="flex flex-col items-center justify-center h-full bg-gray-50 text-gray-400">
@@ -164,7 +321,10 @@ export const GlobalStatistics: React.FC<GlobalStatisticsProps> = ({ results, onS
                 <Activity className="w-3 h-3" />
                 <span>Analytics</span>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">{title || 'Global Statistics'}</h1>
+            {
+                !runInfo &&
+                <h1 className="text-2xl font-bold text-gray-900">{title || 'Global Statistics'}</h1>
+            }
         </div>
         <div className="flex gap-3 items-center">
             <div className="text-sm text-gray-500 font-medium bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
@@ -186,53 +346,13 @@ export const GlobalStatistics: React.FC<GlobalStatisticsProps> = ({ results, onS
                     <div className="flex items-center gap-2 mb-6">
                         <Trophy className="w-5 h-5 text-warning" />
                         <h2 className="font-bold text-gray-800">Candidate Leaderboard</h2>
-                        {onSelectResult && <span className="text-xs text-gray-400 font-normal ml-auto">(Click to view)</span>}
+                        {onSelectResult && <span className="text-xs text-gray-400 font-normal ml-auto mr-2">(Click to view)</span>}
+                        <button onClick={() => setZoomChart('LEADERBOARD')} className="ml-auto p-1.5 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-lg transition" title="Zoom Chart">
+                            <Maximize2 className="w-4 h-4" />
+                        </button>
                     </div>
                     <div className="flex-1">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart 
-                                data={leaderboardData} 
-                                layout="vertical" 
-                                margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
-                                <XAxis type="number" domain={[0, 100]} hide />
-                                <YAxis 
-                                    dataKey="name" 
-                                    type="category" 
-                                    width={100} 
-                                    tick={{ fontSize: 11, fontWeight: 500, fill: '#475569' }} 
-                                    axisLine={false}
-                                    tickLine={false}
-                                />
-                                <Tooltip 
-                                    cursor={{fill: '#f8fafc'}}
-                                    content={({ active, payload }) => {
-                                        if (active && payload && payload.length) {
-                                            const data = payload[0].payload;
-                                            return (
-                                                <div className="bg-white p-3 border border-gray-100 shadow-xl rounded-lg text-xs">
-                                                    <div className="font-bold text-gray-900 mb-1">{data.name}</div>
-                                                    <div className="text-primary font-bold">{data.score.toFixed(1)}%</div>
-                                                    <div className="text-gray-400 mt-1">{data.rawScore}/{data.maxScore} pts</div>
-                                                    <div className="text-gray-300 italic">{data.date}</div>
-                                                </div>
-                                            )
-                                        }
-                                        return null;
-                                    }}
-                                />
-                                <ReferenceLine x={100} stroke="#dc2626" strokeDasharray="3 3" label={{ position: 'top', value: 'Max', fill: '#dc2626', fontSize: 10 }} />
-                                <Bar 
-                                    dataKey="score" 
-                                    fill="#144346" 
-                                    radius={[0, 4, 4, 0]} 
-                                    barSize={20} 
-                                    onClick={(data) => onSelectResult && onSelectResult(data.id)} 
-                                    style={{ cursor: onSelectResult ? 'pointer' : 'default' }}
-                                />
-                            </BarChart>
-                        </ResponsiveContainer>
+                        {renderLeaderboard()}
                     </div>
                 </div>
 
@@ -241,22 +361,12 @@ export const GlobalStatistics: React.FC<GlobalStatisticsProps> = ({ results, onS
                     <div className="flex items-center gap-2 mb-6">
                         <BarChart3 className="w-5 h-5 text-primary" />
                         <h2 className="font-bold text-gray-800">Score Distribution (Histogram)</h2>
+                        <button onClick={() => setZoomChart('HISTOGRAM')} className="ml-auto p-1.5 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-lg transition" title="Zoom Chart">
+                            <Maximize2 className="w-4 h-4" />
+                        </button>
                     </div>
                     <div className="flex-1">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={histogramData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                <XAxis 
-                                    dataKey="range" 
-                                    tick={{ fontSize: 10, fill: '#64748b' }} 
-                                    axisLine={false} 
-                                    tickLine={false} 
-                                />
-                                <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
-                                <Tooltip cursor={{fill: '#f8fafc'}} content={<CustomTooltip />} />
-                                <Bar dataKey="count" name="Candidates" fill="#aef1cb" radius={[4, 4, 0, 0]} stroke="#144346" strokeWidth={1} />
-                            </BarChart>
-                        </ResponsiveContainer>
+                        {renderHistogram()}
                     </div>
                 </div>
             </div>
@@ -266,103 +376,55 @@ export const GlobalStatistics: React.FC<GlobalStatisticsProps> = ({ results, onS
                  <div className="flex items-center gap-2 mb-2">
                     <Users className="w-5 h-5 text-primary" />
                     <h2 className="font-bold text-gray-800">Score Distribution by Category</h2>
+                    <button onClick={() => setZoomChart('SCATTER')} className="ml-auto p-1.5 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-lg transition" title="Zoom Chart">
+                            <Maximize2 className="w-4 h-4" />
+                    </button>
                 </div>
                 <p className="text-xs text-gray-500 mb-6">Visualizes the spread of scores. Each dot represents a candidate's score in that category.</p>
                 <div className="flex-1">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                            <XAxis 
-                                dataKey="category" 
-                                type="category" 
-                                allowDuplicatedCategory={false} 
-                                tick={{ fontSize: 12, fontWeight: 600, fill: '#334155' }}
-                                axisLine={{ stroke: '#e2e8f0' }}
-                                tickLine={false}
-                            />
-                            <YAxis 
-                                type="number" 
-                                dataKey="score" 
-                                name="Score" 
-                                unit="%" 
-                                domain={[0, 100]} 
-                                axisLine={false}
-                                tickLine={false}
-                                tick={{ fontSize: 11, fill: '#64748b' }}
-                            />
-                            <ZAxis type="number" range={[50, 50]} />
-                            <Tooltip 
-                                cursor={{ strokeDasharray: '3 3' }} 
-                                content={({ active, payload }) => {
-                                    if (active && payload && payload.length) {
-                                        const data = payload[0].payload;
-                                        return (
-                                            <div className="bg-white p-2 border border-gray-200 shadow-lg rounded text-xs">
-                                                <div className="font-bold">{data.candidate}</div>
-                                                <div className="text-gray-500">{data.category}: {data.score.toFixed(0)}%</div>
-                                            </div>
-                                        );
-                                    }
-                                    return null;
-                                }} 
-                            />
-                            <Scatter name="Scores" data={distributionData} fill="#144346" fillOpacity={0.6} />
-                        </ScatterChart>
-                    </ResponsiveContainer>
+                    {renderScatter()}
                 </div>
             </div>
 
             {/* Bottom: Skill Matrix Heatmap */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden h-[500px] flex flex-col">
                 <div className="p-6 border-b border-gray-100 flex items-center gap-2">
                     <Grid className="w-5 h-5 text-primary" />
                     <h2 className="font-bold text-gray-800">Skill Matrix Heatmap</h2>
+                    <button onClick={() => setZoomChart('HEATMAP')} className="ml-auto p-1.5 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-lg transition" title="Zoom Chart">
+                            <Maximize2 className="w-4 h-4" />
+                    </button>
                 </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left">
-                        <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-100">
-                            <tr>
-                                <th className="px-6 py-4 font-semibold">Candidate</th>
-                                {heatmapData.categories.map(cat => (
-                                    <th key={cat} className="px-6 py-4 font-semibold text-center">{cat}</th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {heatmapData.rows.map((row, idx) => (
-                                <tr key={idx} className="border-b border-gray-50 hover:bg-gray-50/50 transition">
-                                    <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{row.candidate}</td>
-                                    {row.scores.map((s, i) => {
-                                        // Calculate color intensity
-                                        // 0% -> light red/gray, 100% -> dark primary
-                                        // Using opacity of primary color #144346
-                                        const opacity = s.value !== null ? (s.value / 100) * 0.9 + 0.1 : 0;
-                                        const bgColor = s.value !== null 
-                                            ? `rgba(20, 67, 70, ${opacity})` 
-                                            : '#f3f4f6';
-                                        const textColor = s.value !== null && s.value > 50 ? 'white' : 'black';
-                                        
-                                        return (
-                                            <td key={i} className="p-1">
-                                                <div 
-                                                    className="w-full h-10 flex items-center justify-center rounded text-xs font-bold transition hover:scale-105 cursor-default"
-                                                    style={{ backgroundColor: bgColor, color: textColor }}
-                                                    title={s.value !== null ? `${s.value.toFixed(1)}%` : 'N/A'}
-                                                >
-                                                    {s.value !== null ? s.value.toFixed(0) : '-'}
-                                                </div>
-                                            </td>
-                                        );
-                                    })}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                <div className="flex-1 overflow-hidden">
+                    {renderHeatmap()}
                 </div>
             </div>
 
          </div>
       </div>
+
+      <ChartZoomModal
+        isOpen={!!zoomChart}
+        onClose={() => setZoomChart(null)}
+        title={
+            zoomChart === 'LEADERBOARD' ? 'Candidate Leaderboard' :
+            zoomChart === 'HISTOGRAM' ? 'Score Distribution (Histogram)' :
+            zoomChart === 'SCATTER' ? 'Score Distribution by Category' :
+            'Skill Matrix Heatmap'
+        }
+        description={
+            zoomChart === 'LEADERBOARD' ? 'Rankings of candidates based on percentage score.' :
+            zoomChart === 'HISTOGRAM' ? 'Frequency distribution of candidate scores.' :
+            zoomChart === 'SCATTER' ? 'Spread of scores across different categories.' :
+            'Detailed breakdown of category scores for each candidate.'
+        }
+        runInfo={runInfo}
+      >
+        {zoomChart === 'LEADERBOARD' && renderLeaderboard()}
+        {zoomChart === 'HISTOGRAM' && renderHistogram()}
+        {zoomChart === 'SCATTER' && renderScatter()}
+        {zoomChart === 'HEATMAP' && renderHeatmap()}
+      </ChartZoomModal>
     </div>
   );
 };
