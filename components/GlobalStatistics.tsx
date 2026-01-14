@@ -315,82 +315,82 @@ export const GlobalStatistics: React.FC<GlobalStatisticsProps> = ({ results, onS
 
   return (
     <div className="flex flex-col h-full bg-gray-50">
-      <div className="px-8 py-5 border-b border-gray-200 bg-white flex justify-between items-center shadow-sm z-10">
+      <div className="px-4 md:px-8 py-3 md:py-5 border-b border-gray-200 bg-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm z-10 shrink-0">
         <div>
-            <div className="flex items-center gap-2 text-gray-400 text-xs uppercase font-bold tracking-wider mb-1">
+            <div className="flex items-center gap-2 text-gray-400 text-[10px] md:text-xs uppercase font-bold tracking-wider mb-1">
                 <Activity className="w-3 h-3" />
                 <span>Analytics</span>
             </div>
             {
                 !runInfo &&
-                <h1 className="text-2xl font-bold text-gray-900">{title || 'Global Statistics'}</h1>
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900 truncate">{title || 'Global Statistics'}</h1>
             }
         </div>
-        <div className="flex gap-3 items-center">
-            <div className="text-sm text-gray-500 font-medium bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
+        <div className="flex gap-2 md:gap-3 items-center w-full md:w-auto">
+            <div className="text-[10px] md:text-sm text-gray-500 font-medium bg-gray-100 px-2.5 md:px-3 py-1 rounded-full border border-gray-200 whitespace-nowrap">
                 {results.length} Interviews
             </div>
-            <button onClick={handleExport} className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-gray-700 transition font-medium text-xs shadow-sm">
+            <button onClick={handleExport} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 py-1.5 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-gray-700 transition font-medium text-[10px] md:text-xs shadow-sm whitespace-nowrap">
                 <Download className="w-3.5 h-3.5" /> Export Data
             </button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto p-8">
-         <div className="max-w-6xl mx-auto space-y-8 pb-10">
+      <div className="flex-1 overflow-auto p-4 md:p-8">
+         <div className="max-w-6xl mx-auto space-y-6 md:space-y-8 pb-10">
             
             {/* Top Row: Leaderboard & Histogram */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
                 {/* 1. Candidate Leaderboard */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col h-[400px]">
-                    <div className="flex items-center gap-2 mb-6">
-                        <Trophy className="w-5 h-5 text-warning" />
-                        <h2 className="font-bold text-gray-800">Candidate Leaderboard</h2>
-                        {onSelectResult && <span className="text-xs text-gray-400 font-normal ml-auto mr-2">(Click to view)</span>}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6 flex flex-col h-[300px] md:h-[400px]">
+                    <div className="flex items-center gap-2 mb-4 md:mb-6">
+                        <Trophy className="w-4 md:w-5 h-4 md:h-5 text-warning" />
+                        <h2 className="font-bold text-sm md:text-base text-gray-800">Leaderboard</h2>
+                        {onSelectResult && <span className="hidden sm:inline text-[10px] md:text-xs text-gray-400 font-normal ml-auto mr-2">(Click to view)</span>}
                         <button onClick={() => setZoomChart('LEADERBOARD')} className="ml-auto p-1.5 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-lg transition" title="Zoom Chart">
                             <Maximize2 className="w-4 h-4" />
                         </button>
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-h-0">
                         {renderLeaderboard()}
                     </div>
                 </div>
 
                 {/* 4. Histogram */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col h-[400px]">
-                    <div className="flex items-center gap-2 mb-6">
-                        <BarChart3 className="w-5 h-5 text-primary" />
-                        <h2 className="font-bold text-gray-800">Score Distribution (Histogram)</h2>
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6 flex flex-col h-[300px] md:h-[400px]">
+                    <div className="flex items-center gap-2 mb-4 md:mb-6">
+                        <BarChart3 className="w-4 md:w-5 h-4 md:h-5 text-primary" />
+                        <h2 className="font-bold text-sm md:text-base text-gray-800">Score Distribution</h2>
                         <button onClick={() => setZoomChart('HISTOGRAM')} className="ml-auto p-1.5 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-lg transition" title="Zoom Chart">
                             <Maximize2 className="w-4 h-4" />
                         </button>
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-h-0">
                         {renderHistogram()}
                     </div>
                 </div>
             </div>
 
             {/* Middle: Score Distribution by Category */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col h-[400px]">
-                 <div className="flex items-center gap-2 mb-2">
-                    <Users className="w-5 h-5 text-primary" />
-                    <h2 className="font-bold text-gray-800">Score Distribution by Category</h2>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6 flex flex-col h-[350px] md:h-[400px]">
+                 <div className="flex items-center gap-2 mb-1.5 md:mb-2">
+                    <Users className="w-4 md:w-5 h-4 md:h-5 text-primary" />
+                    <h2 className="font-bold text-sm md:text-base text-gray-800">Scores by Category</h2>
                     <button onClick={() => setZoomChart('SCATTER')} className="ml-auto p-1.5 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-lg transition" title="Zoom Chart">
                             <Maximize2 className="w-4 h-4" />
                     </button>
                 </div>
-                <p className="text-xs text-gray-500 mb-6">Visualizes the spread of scores. Each dot represents a candidate's score in that category.</p>
-                <div className="flex-1">
+                <p className="text-[10px] md:text-xs text-gray-500 mb-4 md:mb-6">Each dot represents a candidate's score in that category.</p>
+                <div className="flex-1 min-h-0">
                     {renderScatter()}
                 </div>
             </div>
 
             {/* Bottom: Skill Matrix Heatmap */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden h-[500px] flex flex-col">
-                <div className="p-6 border-b border-gray-100 flex items-center gap-2">
-                    <Grid className="w-5 h-5 text-primary" />
-                    <h2 className="font-bold text-gray-800">Skill Matrix Heatmap</h2>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden h-[400px] md:h-[500px] flex flex-col">
+                <div className="p-4 md:p-6 border-b border-gray-100 flex items-center gap-2">
+                    <Grid className="w-4 md:w-5 h-4 md:h-5 text-primary" />
+                    <h2 className="font-bold text-sm md:text-base text-gray-800">Skill Matrix Heatmap</h2>
                     <button onClick={() => setZoomChart('HEATMAP')} className="ml-auto p-1.5 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-lg transition" title="Zoom Chart">
                             <Maximize2 className="w-4 h-4" />
                     </button>

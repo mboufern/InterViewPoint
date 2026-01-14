@@ -492,11 +492,17 @@ const defaultTemplate: InterviewTemplate = {
 
       <main className="flex-1 h-full overflow-hidden relative flex flex-col">
         {/* Mobile Header */}
-        <div className="md:hidden bg-white border-b border-gray-200 p-4 flex items-center gap-3 shadow-sm z-10 shrink-0">
-            <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 text-gray-600 hover:bg-gray-100 rounded-md">
-                <Menu className="w-6 h-6" />
-            </button>
-            <h1 className="font-bold text-lg text-primary">InterViewPoint</h1>
+        <div className="md:hidden bg-primary px-4 py-3 flex items-center justify-between shadow-md z-20 shrink-0">
+            <div className="flex items-center gap-3">
+                <button onClick={() => setIsSidebarOpen(true)} className="p-1.5 -ml-1.5 text-accent hover:bg-white/10 rounded-md transition-colors">
+                    <Menu className="w-6 h-6" />
+                </button>
+                <h1 className="font-bold text-lg text-white tracking-tight flex items-center gap-2">
+                    <span className="w-1.5 h-6 bg-accent rounded-full"></span>
+                    InterViewPoint
+                </h1>
+            </div>
+            {/* Optional: Add a quick action button here if needed */}
         </div>
         
         <div className="flex-1 overflow-hidden relative">

@@ -321,59 +321,59 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
   return (
     <div className="flex flex-col h-full bg-gray-50 relative">
       {/* Header */}
-      <div className="px-8 py-5 bg-white border-b border-gray-200 shadow-sm flex items-center justify-between z-10">
-        <div>
-          <div className="flex items-center gap-2 text-gray-400 text-xs uppercase font-bold tracking-wider mb-1">
-             <span>{readOnly ? 'Viewing Result' : 'Conducting Interview'}</span>
+      <div className="px-4 md:px-8 py-3 md:py-5 bg-white border-b border-gray-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 z-10 shrink-0">
+        <div className="w-full md:w-auto">
+          <div className="flex flex-wrap items-center gap-1 md:gap-2 text-gray-400 text-[10px] uppercase font-bold tracking-wider mb-1">
+             <span className="truncate max-w-[120px] md:max-w-none">{readOnly ? 'Viewing Result' : 'Conducting Interview'}</span>
              <span>•</span>
-             <span>{currentTemplate.name}</span>
+             <span className="truncate max-w-[150px] md:max-w-none">{currentTemplate.name}</span>
           </div>
           {readOnly ? (
-            <div>
-                <h1 className="text-2xl font-bold text-gray-900">{candidateName}</h1>
+            <div className="flex-1 min-w-0">
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900 truncate">{candidateName}</h1>
                 {existingResult?.completedAt && (
-                    <div className="flex items-center gap-1 text-xs text-gray-500 mt-1 font-medium">
+                    <div className="flex items-center gap-1 text-[10px] md:text-xs text-gray-500 mt-0.5 md:mt-1 font-medium">
                         <Clock className="w-3 h-3 shrink-0" />
                         <span>Completed: {formatDate(existingResult.completedAt)}</span>
                     </div>
                 )}
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-                <User className="w-5 h-5 shrink-0 text-gray-400" />
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+                <User className="w-4 md:w-5 h-4 md:h-5 shrink-0 text-gray-400" />
                 <input 
                     type="text" 
                     value={candidateName}
                     onChange={(e) => setCandidateName(e.target.value)}
                     placeholder="Candidate Name"
-                    className="text-2xl font-bold text-gray-900 border-b border-transparent focus:border-primary focus:outline-none placeholder-gray-300 bg-transparent transition-colors"
+                    className="text-xl md:text-2xl font-bold text-gray-900 border-b border-transparent focus:border-primary focus:outline-none placeholder-gray-300 bg-transparent transition-colors w-full"
                 />
             </div>
           )}
         </div>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center justify-between md:justify-end gap-4 md:gap-6 w-full md:w-auto">
             <div className="flex flex-col items-end">
-                <span className="text-xs text-gray-500 font-semibold uppercase">Total Score</span>
+                <span className="text-[10px] text-gray-500 font-semibold uppercase">Total Score</span>
                 <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-bold text-primary">{scoreStats.total.toFixed(1)}</span>
-                    <span className="text-sm text-gray-400 font-medium">/ {scoreStats.max} <span className="text-gray-300">|</span> {scoreStats.percentage.toFixed(0)}%</span>
+                    <span className="text-xl md:text-3xl font-bold text-primary">{scoreStats.total.toFixed(1)}</span>
+                    <span className="text-xs md:text-sm text-gray-400 font-medium">/ {scoreStats.max} <span className="text-gray-300 hidden md:inline">|</span> <span className="md:inline">{scoreStats.percentage.toFixed(0)}%</span></span>
                 </div>
             </div>
             
-            <div className="h-10 w-px bg-gray-200"></div>
+            <div className="h-8 md:h-10 w-px bg-gray-200 hidden sm:block"></div>
 
             {readOnly ? (
-               <div className="flex gap-2">
-                   <button onClick={() => setShowFinishModal(true)} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-gray-700 transition font-medium text-sm">
-                        <PieChart className="w-4 h-4 shrink-0" /> View Statistics
+               <div className="flex gap-1.5 md:gap-2">
+                   <button onClick={() => setShowFinishModal(true)} className="flex items-center gap-2 px-2.5 md:px-4 py-1.5 md:py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-gray-700 transition font-medium text-xs md:text-sm" title="View Statistics">
+                        <PieChart className="w-4 h-4 shrink-0" /> <span className="hidden sm:inline">Statistics</span>
                    </button>
-                   <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-gray-700 transition font-medium text-sm">
-                        <Download className="w-4 h-4 shrink-0" /> Export Result
+                   <button onClick={handleExport} className="flex items-center gap-2 px-2.5 md:px-4 py-1.5 md:py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-gray-700 transition font-medium text-xs md:text-sm" title="Export Result">
+                        <Download className="w-4 h-4 shrink-0" /> <span className="hidden sm:inline">Export</span>
                    </button>
                </div>
             ) : (
-                <button onClick={handleFinishClick} className="px-6 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary/90 font-medium transition text-sm">
+                <button onClick={handleFinishClick} className="px-4 md:px-6 py-1.5 md:py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary/90 font-medium transition text-xs md:text-sm whitespace-nowrap">
                     Finish & Save
                 </button>
             )}
@@ -381,8 +381,8 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
       </div>
 
       {/* Main Board */}
-      <div className="flex-1 overflow-x-auto overflow-y-hidden p-8">
-        <div className="flex gap-6 h-full min-w-max pb-4">
+      <div className="flex-1 overflow-x-auto overflow-y-hidden p-4 md:p-8">
+        <div className="flex gap-4 md:gap-6 h-full min-w-max pb-4">
             {currentTemplate.categories.sort((a,b) => a.order - b.order).map((cat, catIdx) => {
                 const catQuestions = currentTemplate.questions.filter(q => q.categoryId === cat.id).sort((a,b) => a.order - b.order);
                 const answeredCount = catQuestions.filter(q => answers[q.id]).length;
@@ -399,46 +399,46 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                 const catPercentage = catMax > 0 ? (catScore / catMax) * 100 : 0;
 
                 return (
-                    <div key={cat.id} className="w-80 flex flex-col h-full bg-gray-100/50 rounded-xl border border-gray-200/80 overflow-hidden animate-slide-up" style={{ animationDelay: `${catIdx * 0.1}s` }}>
-                        <div className="p-4 bg-white border-b border-gray-200 sticky top-0 z-10">
+                    <div key={cat.id} className="w-64 md:w-80 flex flex-col h-full bg-gray-100/50 rounded-xl border border-gray-200/80 overflow-hidden animate-slide-up shrink-0" style={{ animationDelay: `${catIdx * 0.1}s` }}>
+                        <div className="p-3 md:p-4 bg-white border-b border-gray-200 sticky top-0 z-10">
                             <div className="flex justify-between items-center mb-1">
-                                <h3 className="font-bold text-gray-800">{cat.name}</h3>
-                                <span className="text-[10px] bg-gray-100 px-2 py-0.5 rounded-full text-gray-500 font-bold uppercase tracking-wide">{answeredCount} / {catQuestions.length}</span>
+                                <h3 className="font-bold text-sm md:text-base text-gray-800 truncate pr-2">{cat.name}</h3>
+                                <span className="text-[9px] md:text-[10px] bg-gray-100 px-1.5 md:px-2 py-0.5 rounded-full text-gray-500 font-bold uppercase tracking-wide whitespace-nowrap">{answeredCount} / {catQuestions.length}</span>
                             </div>
                             <div className="flex justify-between items-end">
-                                <span className="text-xs text-gray-400 font-medium">Score</span>
+                                <span className="text-[10px] md:text-xs text-gray-400 font-medium uppercase tracking-tight">Score</span>
                                 <div className="text-right">
-                                    <span className="text-sm font-bold text-primary">{catScore.toFixed(0)}</span>
-                                    <span className="text-[10px] text-gray-400"> / {catMax}</span>
+                                    <span className="text-xs md:text-sm font-bold text-primary">{catScore.toFixed(0)}</span>
+                                    <span className="text-[9px] md:text-[10px] text-gray-400"> / {catMax}</span>
                                 </div>
                             </div>
                             <div className="w-full bg-gray-100 h-1 mt-2 rounded-full overflow-hidden">
                                 <div className="bg-accent h-full rounded-full transition-all duration-500" style={{ width: `${catPercentage}%` }}></div>
                             </div>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                        <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-2 md:space-y-3 custom-scrollbar">
                             {catQuestions.map(q => {
                                 const answer = answers[q.id];
                                 return (
                                     <div 
                                         key={q.id} 
                                         onClick={() => !readOnly && setActiveQuestionId(q.id)}
-                                        className={`p-4 rounded-lg bg-white border shadow-sm transition-all duration-200 relative animate-fade-in ${
-                                            !readOnly ? 'cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-primary/30' : ''
+                                        className={`p-3 md:p-4 rounded-lg bg-white border shadow-sm transition-all duration-200 relative animate-fade-in ${
+                                            !readOnly ? 'cursor-pointer hover:shadow-md md:hover:-translate-y-0.5 hover:border-primary/30' : ''
                                         } ${answer ? 'border-l-4 ' + (answer.score > 0 ? 'border-l-success' : 'border-l-danger') : 'border-gray-200'}`}
                                     >
-                                        <div className="flex justify-between items-start gap-2 mb-2">
-                                            <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${q.type === 'DIRECT' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>
+                                        <div className="flex justify-between items-start gap-2 mb-1.5 md:mb-2">
+                                            <span className={`text-[9px] md:text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${q.type === 'DIRECT' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>
                                                 {q.type}
                                             </span>
-                                            <span className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-mono font-bold">
+                                            <span className="text-[9px] md:text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-mono font-bold">
                                                 x{q.multiplier}
                                             </span>
                                         </div>
-                                        <p className="text-sm font-medium text-gray-800 leading-relaxed">{q.text}</p>
+                                        <p className="text-xs md:text-sm font-medium text-gray-800 leading-relaxed">{q.text}</p>
                                         
                                         {answer && (
-                                            <div className={`mt-3 text-xs px-2 py-1 rounded border inline-block font-bold ${getFeedbackColor(answer.feedback, answer.isCustom)}`}>
+                                            <div className={`mt-2 md:mt-3 text-[10px] md:text-xs px-2 py-1 rounded border inline-block font-bold ${getFeedbackColor(answer.feedback, answer.isCustom)}`}>
                                                 {answer.feedback}
                                             </div>
                                         )}
@@ -456,13 +456,13 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
       {activeQuestion && !readOnly && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
             <div className="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all scale-100 animate-slide-up">
-                <div className="p-6 border-b border-gray-100 bg-gray-50/50">
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">Rate Candidate's Answer</h3>
-                    <p className="text-gray-600 text-sm leading-relaxed">{activeQuestion.text}</p>
+                <div className="p-4 md:p-6 border-b border-gray-100 bg-gray-50/50">
+                    <h3 className="text-base md:text-lg font-bold text-gray-900 mb-1.5 md:mb-2">Rate Candidate's Answer</h3>
+                    <p className="text-gray-600 text-xs md:text-sm leading-relaxed">{activeQuestion.text}</p>
                 </div>
-                <div className="p-6 flex flex-col gap-3">
+                <div className="p-4 md:p-6 flex flex-col gap-3">
                     {/* Standard Feedbacks */}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-2 md:gap-3">
                         {activeQuestion.type === 'DIRECT' ? (
                              Object.keys(settings.direct).map((key) => {
                                  const s = settings.direct[key as DirectFeedback];
@@ -493,12 +493,12 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                     {/* Custom Feedbacks */}
                     {activeQuestion.customFeedbacks && activeQuestion.customFeedbacks.length > 0 && (
                         <>
-                            <div className="flex items-center gap-2 mt-2 mb-1">
+                            <div className="flex items-center gap-2 mt-1 md:mt-2 mb-0.5 md:mb-1">
                                 <div className="h-px bg-gray-200 flex-1"></div>
-                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Custom</span>
+                                <span className="text-[9px] md:text-[10px] text-gray-400 font-bold uppercase tracking-wider">Custom</span>
                                 <div className="h-px bg-gray-200 flex-1"></div>
                             </div>
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-2 gap-2 md:gap-3">
                                 {activeQuestion.customFeedbacks.map(f => (
                                     <FeedbackButton 
                                         key={f.id}
@@ -512,8 +512,8 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                         </>
                     )}
                 </div>
-                <div className="bg-gray-50 p-4 flex justify-end border-t border-gray-100">
-                    <button onClick={() => setActiveQuestionId(null)} className="text-gray-500 hover:text-gray-700 font-medium text-sm px-3 py-1 rounded hover:bg-gray-200 transition">Cancel</button>
+                <div className="bg-gray-50 p-3 md:p-4 flex justify-end border-t border-gray-100">
+                    <button onClick={() => setActiveQuestionId(null)} className="text-gray-500 hover:text-gray-700 font-medium text-xs md:text-sm px-3 py-1.5 rounded hover:bg-gray-200 transition">Cancel</button>
                 </div>
             </div>
         </div>
@@ -521,36 +521,36 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
 
       {/* Finish/Statistics Modal */}
       {showFinishModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-md z-50 flex items-center justify-center p-6 animate-fade-in">
-              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-hidden flex flex-col transform transition-all scale-100 animate-slide-up">
-                  <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-md z-50 flex items-center justify-center p-4 md:p-6 animate-fade-in">
+              <div className="bg-white rounded-xl md:rounded-2xl shadow-2xl w-full max-w-7xl h-full md:max-h-[90vh] overflow-hidden flex flex-col transform transition-all scale-100 animate-slide-up">
+                  <div className="p-4 md:p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                       <div>
-                        <h3 className="text-xl font-bold text-primary flex items-center gap-2">
+                        <h3 className="text-lg md:text-xl font-bold text-primary flex items-center gap-2">
                              <PieChart className="w-5 h-5 shrink-0 text-accent" />
-                             {readOnly ? `Interview Analysis: ${candidateName}` : 'Finish Interview'}
+                             {readOnly ? `Analysis: ${candidateName}` : 'Finish Interview'}
                         </h3>
-                        <p className="text-xs text-gray-400 mt-1 uppercase tracking-wider font-bold">Statistics & Summary</p>
+                        <p className="text-[9px] md:text-xs text-gray-400 mt-0.5 md:mt-1 uppercase tracking-wider font-bold">Statistics & Summary</p>
                       </div>
                       <button onClick={() => setShowFinishModal(false)} className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-200 rounded-full transition">
                           <X className="w-5 h-5 shrink-0" />
                       </button>
                   </div>
                   
-                  <div className="flex-1 overflow-y-auto p-8 bg-white">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                  <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-white">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 mb-6 md:mb-8">
                           {/* Left: Radar Chart (Proficiency) */}
-                          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col">
-                              <div className="flex items-center justify-between mb-6">
-                                  <h4 className="text-sm font-bold text-gray-600 uppercase tracking-wide">Category Proficiency</h4>
+                          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 md:p-6 flex flex-col">
+                              <div className="flex items-center justify-between mb-4 md:mb-6">
+                                  <h4 className="text-xs md:text-sm font-bold text-gray-600 uppercase tracking-wide">Category Proficiency</h4>
                                   <button onClick={() => setZoomChart('RADAR')} className="p-1.5 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-lg transition" title="Zoom Chart">
                                       <Maximize2 className="w-4 h-4 shrink-0" />
                                   </button>
                               </div>
-                              <div className="w-full h-[400px] relative">
+                              <div className="w-full h-[250px] md:h-[400px] relative">
                                   {statsData.radarData.length > 2 ? (
                                     renderRadarChart()
                                   ) : (
-                                    <div className="flex items-center justify-center h-full text-gray-400 text-sm italic border-2 border-dashed border-gray-100 rounded-lg">
+                                    <div className="flex items-center justify-center h-full text-gray-400 text-xs md:text-sm italic border-2 border-dashed border-gray-100 rounded-lg text-center p-4">
                                         Not enough categories for radar chart (Need 3+)
                                     </div>
                                   )}
@@ -558,37 +558,37 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                           </div>
 
                           {/* Right: Stacked Area Chart (Detailed Scores) */}
-                          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col">
-                              <div className="flex items-center justify-between mb-6">
-                                  <h4 className="text-sm font-bold text-gray-600 uppercase tracking-wide">Detailed Question Scores</h4>
+                          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 md:p-6 flex flex-col">
+                              <div className="flex items-center justify-between mb-4 md:mb-6">
+                                  <h4 className="text-xs md:text-sm font-bold text-gray-600 uppercase tracking-wide">Detailed Scores</h4>
                                   <button onClick={() => setZoomChart('AREA')} className="p-1.5 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-lg transition" title="Zoom Chart">
                                       <Maximize2 className="w-4 h-4 shrink-0" />
                                   </button>
                               </div>
-                              <div className="w-full h-[400px]">
+                              <div className="w-full h-[250px] md:h-[400px]">
                                   {renderAreaChart()}
                               </div>
                           </div>
                       </div>
 
-                      <div className="bg-gray-50/50 rounded-xl p-6 border border-gray-100">
+                      <div className="bg-gray-50/50 rounded-xl p-4 md:p-6 border border-gray-100">
                            {readOnly && recruitmentRunId && (
-                              <div className="mb-4 p-3 bg-blue-50 text-blue-800 rounded-lg text-sm border border-blue-100 flex items-center gap-2">
-                                   <Layers className="w-4 h-4 shrink-0" />
-                                   <span className="font-bold">Recruitment Run:</span>
-                                   <span>{runs.find(r => r.id === recruitmentRunId)?.name || 'Unknown Run'}</span>
+                              <div className="mb-4 p-2.5 md:p-3 bg-blue-50 text-blue-800 rounded-lg text-xs md:text-sm border border-blue-100 flex items-center gap-2">
+                                   <Layers className="w-3.5 md:w-4 h-3.5 md:h-4 shrink-0" />
+                                   <span className="font-bold">Run:</span>
+                                   <span className="truncate">{runs.find(r => r.id === recruitmentRunId)?.name || 'Unknown Run'}</span>
                               </div>
                           )}
 
                            {/* Recruitment Run Selection */}
                           {(!readOnly || isEditing) && runs.length > 0 && (
-                              <div className="bg-white rounded-xl p-4 border border-gray-200 mb-6 shadow-sm">
-                                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Recruitment Run (Optional)</label>
+                              <div className="bg-white rounded-xl p-3 md:p-4 border border-gray-200 mb-4 md:mb-6 shadow-sm">
+                                  <label className="block text-[10px] md:text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5 md:mb-2">Recruitment Run (Optional)</label>
                                   <select
                                       value={recruitmentRunId || ''}
                                       onChange={(e) => setRecruitmentRunId(e.target.value || null)}
                                       disabled={readOnly && !isEditing}
-                                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-white text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-white text-xs md:text-sm disabled:bg-gray-100 disabled:text-gray-500"
                                   >
                                       <option value="">-- Select a Run --</option>
                                       {runs.filter(r => r.status === 'ACTIVE' || r.id === recruitmentRunId).map(run => (
@@ -598,9 +598,9 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                               </div>
                           )}
 
-                          <div className="flex items-center gap-2 mb-3">
-                            <FileText className="w-4 h-4 shrink-0 text-primary" />
-                            <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wide">
+                          <div className="flex items-center gap-2 mb-2 md:mb-3">
+                            <FileText className="w-3.5 md:w-4 h-3.5 md:h-4 shrink-0 text-primary" />
+                            <h4 className="text-xs md:text-sm font-bold text-gray-900 uppercase tracking-wide">
                                 {readOnly && !isEditing ? 'Candidate Summary' : 'Summary & Notes'}
                             </h4>
                           </div>
@@ -610,16 +610,16 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                               readOnly={readOnly && !isEditing}
                               placeholder={readOnly && !isEditing ? "No summary provided." : "Write your summary here..."}
                               rows={5}
-                              className={`w-full p-4 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none resize-none text-sm leading-relaxed ${readOnly && !isEditing ? 'bg-transparent border-transparent px-0 font-medium text-gray-700' : 'bg-white border-gray-300 text-gray-900 shadow-sm'}`}
+                              className={`w-full p-3 md:p-4 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none resize-none text-xs md:text-sm leading-relaxed ${readOnly && !isEditing ? 'bg-transparent border-transparent px-0 font-medium text-gray-700' : 'bg-white border-gray-300 text-gray-900 shadow-sm'}`}
                           />
                       </div>
                   </div>
 
-                  <div className="bg-gray-50 p-6 flex justify-end border-t border-gray-200 gap-3">
+                  <div className="bg-gray-50 p-4 md:p-6 flex flex-wrap justify-end border-t border-gray-200 gap-2 md:gap-3">
                       {readOnly && !isEditing && (
                           <button
                             onClick={() => setIsEditing(true)}
-                            className="mr-auto text-primary font-medium text-sm hover:underline"
+                            className="mr-auto text-primary font-medium text-xs md:text-sm hover:underline"
                           >
                               Edit Details
                           </button>
@@ -632,7 +632,7 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                             }
                             setShowFinishModal(false);
                         }} 
-                        className="text-gray-600 hover:text-gray-900 font-medium text-sm px-5 py-2.5 rounded-lg hover:bg-gray-200 transition"
+                        className="text-gray-600 hover:text-gray-900 font-medium text-xs md:text-sm px-4 md:px-5 py-2 md:py-2.5 rounded-lg hover:bg-gray-200 transition"
                       >
                           {readOnly && !isEditing ? 'Close' : 'Cancel'}
                       </button>
@@ -643,7 +643,7 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                                 handleConfirmSave();
                                 if (isEditing) setIsEditing(false);
                             }} 
-                            className="bg-primary text-white font-bold text-sm px-6 py-2.5 rounded-lg shadow-lg shadow-primary/30 hover:bg-primary/90 transition transform hover:-translate-y-0.5"
+                            className="bg-primary text-white font-bold text-xs md:text-sm px-5 md:px-6 py-2 md:py-2.5 rounded-lg shadow-lg shadow-primary/30 hover:bg-primary/90 transition transform active:scale-95"
                           >
                               {readOnly ? 'Save Changes' : 'Save Result'}
                           </button>

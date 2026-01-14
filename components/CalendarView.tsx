@@ -62,16 +62,20 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ runs, results, onSel
   };
 
   return (
-    <div className="flex flex-col h-full bg-white p-6">
+    <div className="flex flex-col h-full bg-white p-3 md:p-6">
         <style>{`
-            .fc .fc-toolbar-title { font-size: 1.5rem; font-weight: 700; color: #1e293b; }
-            .fc .fc-button-primary { background-color: #ffffff; color: #475569; border-color: #e2e8f0; font-weight: 500; text-transform: capitalize; }
+            .fc .fc-toolbar-title { font-size: 1.1rem; font-weight: 700; color: #1e293b; }
+            @media (min-width: 768px) { .fc .fc-toolbar-title { font-size: 1.5rem; } }
+            .fc .fc-button-primary { background-color: #ffffff; color: #475569; border-color: #e2e8f0; font-weight: 500; text-transform: capitalize; font-size: 0.75rem; padding: 0.25rem 0.5rem; }
+            @media (min-width: 768px) { .fc .fc-button-primary { font-size: 0.875rem; padding: 0.375rem 0.75rem; } }
             .fc .fc-button-primary:hover { background-color: #f8fafc; border-color: #cbd5e1; color: #1e293b; }
             .fc .fc-button-primary:not(:disabled).fc-button-active { background-color: #f1f5f9; border-color: #cbd5e1; color: #0f172a; }
             .fc-theme-standard .fc-scrollgrid { border-color: #f1f5f9; }
             .fc-theme-standard td, .fc-theme-standard th { border-color: #f1f5f9; }
-            .fc .fc-col-header-cell-cushion { padding-top: 10px; padding-bottom: 10px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; }
-            .fc-daygrid-day-number { font-size: 0.875rem; font-weight: 600; color: #64748b; padding: 8px; }
+            .fc .fc-col-header-cell-cushion { padding-top: 6px; padding-bottom: 6px; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; }
+            @media (min-width: 768px) { .fc .fc-col-header-cell-cushion { padding-top: 10px; padding-bottom: 10px; font-size: 0.75rem; } }
+            .fc-daygrid-day-number { font-size: 0.75rem; font-weight: 600; color: #64748b; padding: 4px; }
+            @media (min-width: 768px) { .fc-daygrid-day-number { font-size: 0.875rem; padding: 8px; } }
             .fc-day-today { background-color: #f8fafc !important; }
             .fc-event { border-radius: 4px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
         `}</style>
