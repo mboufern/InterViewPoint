@@ -7,6 +7,7 @@ import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
+import { useToast } from './Toast';
 
 interface InterviewExecutionProps {
   template?: InterviewTemplate;
@@ -46,6 +47,7 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
   const [candidateName, setCandidateName] = useState(existingResult?.candidateName || '');
   const [summary, setSummary] = useState(existingResult?.summary || '');
   const [recruitmentRunId, setRecruitmentRunId] = useState<string | null>(existingResult?.recruitmentRunId || null);
+  const { showToast } = useToast();
   
   const [answers, setAnswers] = useState<Record<string, AnswerData>>(() => {
       const initial: Record<string, AnswerData> = {};
@@ -61,6 +63,7 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
 
   const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null);
   const [showFinishModal, setShowFinishModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const currentTemplate = useMemo(() => {
     if (template) return template;
@@ -191,7 +194,7 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
 
   const handleFinishClick = () => {
     if (!candidateName.trim()) {
-      alert("Please enter candidate name");
+      showToast("Please enter candidate name", 'error');
       return;
     }
     setShowFinishModal(true);
@@ -428,7 +431,7 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
       {/* Finish/Statistics Modal */}
       {showFinishModal && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-md z-50 flex items-center justify-center p-6 animate-fade-in">
-              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col transform transition-all scale-100 animate-slide-up">
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-hidden flex flex-col transform transition-all scale-100 animate-slide-up">
                   <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                       <div>
                         <h3 className="text-xl font-bold text-primary flex items-center gap-2">
@@ -447,7 +450,7 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                           {/* Left: Radar Chart (Proficiency) */}
                           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col">
                               <h4 className="text-sm font-bold text-gray-600 mb-6 uppercase tracking-wide text-center">Category Proficiency</h4>
-                              <div className="w-full h-[300px] relative">
+                              <div className="w-full h-[400px] relative">
                                   {statsData.radarData.length > 2 ? (
                                     <ResponsiveContainer width="100%" height="100%">
                                         <RadarChart cx="50%" cy="50%" outerRadius="75%" data={statsData.radarData}>
@@ -484,7 +487,7 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                           {/* Right: Stacked Area Chart (Detailed Scores) */}
                           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col">
                               <h4 className="text-sm font-bold text-gray-600 mb-6 uppercase tracking-wide text-center">Detailed Question Scores</h4>
-                              <div className="w-full h-[300px]">
+                              <div className="w-full h-[400px]">
                                   <ResponsiveContainer width="100%" height="100%">
                                       <AreaChart
                                           data={statsData.areaData}
@@ -549,13 +552,14 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                           )}
 
                            {/* Recruitment Run Selection */}
-                          {!readOnly && runs.length > 0 && (
+                          {(!readOnly || isEditing) && runs.length > 0 && (
                               <div className="bg-white rounded-xl p-4 border border-gray-200 mb-6 shadow-sm">
                                   <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Recruitment Run (Optional)</label>
                                   <select
                                       value={recruitmentRunId || ''}
                                       onChange={(e) => setRecruitmentRunId(e.target.value || null)}
-                                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-white text-sm"
+                                      disabled={readOnly && !isEditing}
+                                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-white text-sm disabled:bg-gray-100 disabled:text-gray-500"
                                   >
                                       <option value="">-- Select a Run --</option>
                                       {runs.filter(r => r.status === 'ACTIVE' || r.id === recruitmentRunId).map(run => (
@@ -568,33 +572,51 @@ export const InterviewExecution: React.FC<InterviewExecutionProps> = ({ template
                           <div className="flex items-center gap-2 mb-3">
                             <FileText className="w-4 h-4 text-primary" />
                             <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wide">
-                                {readOnly ? 'Candidate Summary' : 'Summary & Notes'}
+                                {readOnly && !isEditing ? 'Candidate Summary' : 'Summary & Notes'}
                             </h4>
                           </div>
                           <textarea 
                               value={summary}
-                              onChange={(e) => !readOnly && setSummary(e.target.value)}
-                              readOnly={readOnly}
-                              placeholder={readOnly ? "No summary provided." : "Write your summary here..."}
+                              onChange={(e) => (!readOnly || isEditing) && setSummary(e.target.value)}
+                              readOnly={readOnly && !isEditing}
+                              placeholder={readOnly && !isEditing ? "No summary provided." : "Write your summary here..."}
                               rows={5}
-                              className={`w-full p-4 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none resize-none text-sm leading-relaxed ${readOnly ? 'bg-transparent border-transparent px-0 font-medium text-gray-700' : 'bg-white border-gray-300 text-gray-900 shadow-sm'}`}
+                              className={`w-full p-4 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none resize-none text-sm leading-relaxed ${readOnly && !isEditing ? 'bg-transparent border-transparent px-0 font-medium text-gray-700' : 'bg-white border-gray-300 text-gray-900 shadow-sm'}`}
                           />
                       </div>
                   </div>
 
                   <div className="bg-gray-50 p-6 flex justify-end border-t border-gray-200 gap-3">
+                      {readOnly && !isEditing && (
+                          <button
+                            onClick={() => setIsEditing(true)}
+                            className="mr-auto text-primary font-medium text-sm hover:underline"
+                          >
+                              Edit Details
+                          </button>
+                      )}
+                      
                       <button 
-                        onClick={() => setShowFinishModal(false)} 
+                        onClick={() => {
+                            if (isEditing) {
+                                setIsEditing(false);
+                            }
+                            setShowFinishModal(false);
+                        }} 
                         className="text-gray-600 hover:text-gray-900 font-medium text-sm px-5 py-2.5 rounded-lg hover:bg-gray-200 transition"
                       >
-                          {readOnly ? 'Close' : 'Cancel'}
+                          {readOnly && !isEditing ? 'Close' : 'Cancel'}
                       </button>
-                      {!readOnly && (
+
+                      {(!readOnly || isEditing) && (
                           <button 
-                            onClick={handleConfirmSave} 
+                            onClick={() => {
+                                handleConfirmSave();
+                                if (isEditing) setIsEditing(false);
+                            }} 
                             className="bg-primary text-white font-bold text-sm px-6 py-2.5 rounded-lg shadow-lg shadow-primary/30 hover:bg-primary/90 transition transform hover:-translate-y-0.5"
                           >
-                              Save Result
+                              {readOnly ? 'Save Changes' : 'Save Result'}
                           </button>
                       )}
                   </div>

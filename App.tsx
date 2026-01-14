@@ -9,8 +9,14 @@ import { CalendarView } from './components/CalendarView';
 import { InterviewTemplate, InterviewResult, ViewMode, AppSettings, RecruitmentRun } from './types';
 import { generateId } from './utils';
 import { INITIAL_CATEGORIES, DEFAULT_SETTINGS } from './constants';
+import { ToastProvider, useToast } from './components/Toast';
+import { ConfirmProvider, useConfirm } from './components/ConfirmModal';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  // --- Hooks ---
+  const { showToast } = useToast();
+  const { confirm } = useConfirm();
+
   // --- State ---
   const [templates, setTemplates] = useState<InterviewTemplate[]>([]);
   const [results, setResults] = useState<InterviewResult[]>([]);
@@ -103,12 +109,19 @@ const App: React.FC = () => {
     setViewMode('EDITOR');
     setActiveResultId(null);
     setActiveRunId(null);
+    showToast('New template created', 'success');
   };
 
-  const handleDeleteTemplate = (id: string) => {
-    if (window.confirm('Are you sure? This will not delete past interview results based on this template.')) {
+  const handleDeleteTemplate = async (id: string) => {
+    if (await confirm({
+        title: 'Delete Template',
+        message: 'Are you sure? This will not delete past interview results based on this template.',
+        variant: 'destructive',
+        confirmLabel: 'Delete'
+    })) {
         setTemplates(templates.filter(t => t.id !== id));
         if (activeTemplateId === id) setActiveTemplateId(null);
+        showToast('Template deleted', 'info');
     }
   };
 
@@ -139,6 +152,7 @@ const App: React.FC = () => {
         copy.questions = newQs;
         
         setTemplates([...templates, copy]);
+        showToast('Template duplicated', 'success');
     }
   };
 
@@ -162,19 +176,19 @@ const App: React.FC = () => {
             }
         });
         setResults(newResults);
-        alert('Run and Results Imported Successfully');
+        showToast('Run and Results Imported Successfully', 'success');
     } else if (data.candidateName && Array.isArray(data.questions)) {
         const r = data as InterviewResult;
         r.id = generateId();
         setResults([...results, r]);
-        alert('Result Imported Successfully');
+        showToast('Result Imported Successfully', 'success');
     } else if (data.categories && data.questions) {
         const t = data as InterviewTemplate;
         t.id = generateId(); 
         setTemplates([...templates, t]);
-        alert('Template Imported Successfully');
+        showToast('Template Imported Successfully', 'success');
     } else {
-        alert('Unknown file format');
+        showToast('Unknown file format', 'error');
     }
   };
 
@@ -190,13 +204,22 @@ const App: React.FC = () => {
   };
 
   const handleSaveResult = (result: InterviewResult) => {
-    setResults([result, ...results]); // Prepend
+    setResults(prevResults => {
+      const exists = prevResults.some(r => r.id === result.id);
+      if (exists) {
+        return prevResults.map(r => r.id === result.id ? result : r);
+      }
+      return [result, ...prevResults];
+    });
     setActiveResultId(result.id);
-    alert('Interview Saved!');
+    showToast('Interview Saved!', 'success');
   };
 
   const handleSettingsSave = (newSettings: AppSettings) => {
     setSettings(newSettings);
+    // Toast is handled in SettingsEditor now? No, App doesn't need to know unless we move logic up.
+    // Actually, SettingsEditor calls onSave which updates state here. 
+    // The alert "Settings saved successfully" was in SettingsEditor. I'll handle it there.
   };
 
   const handleCreateRun = () => {
@@ -211,6 +234,7 @@ const App: React.FC = () => {
     setViewMode('RUN_DETAILS');
     setActiveTemplateId(null);
     setActiveResultId(null);
+    showToast('New recruitment run created', 'success');
   };
 
   const handleSelectRun = (id: string) => {
@@ -231,13 +255,19 @@ const App: React.FC = () => {
     setRuns(runs.map(r => r.id === run.id ? run : r));
   };
 
-  const handleDeleteRun = (id: string) => {
-      if (window.confirm('Delete this recruitment run? This will NOT delete the interview results, only the run organization.')) {
+  const handleDeleteRun = async (id: string) => {
+      if (await confirm({
+          title: 'Delete Run',
+          message: 'Delete this recruitment run? This will NOT delete the interview results, only the run organization.',
+          variant: 'destructive',
+          confirmLabel: 'Delete Run'
+      })) {
           setRuns(runs.filter(r => r.id !== id));
           if (activeRunId === id) {
               setActiveRunId(null);
               setViewMode('EDITOR'); // Fallback
           }
+          showToast('Recruitment run deleted', 'success');
       }
   };
 
@@ -316,6 +346,16 @@ const App: React.FC = () => {
         )}
       </main>
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <ToastProvider>
+      <ConfirmProvider>
+        <AppContent />
+      </ConfirmProvider>
+    </ToastProvider>
   );
 };
 

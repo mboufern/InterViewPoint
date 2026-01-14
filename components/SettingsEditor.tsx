@@ -3,6 +3,8 @@ import { AppSettings, DirectFeedback, IndirectFeedback, FeedbackSetting } from '
 import { DEFAULT_SETTINGS } from '../constants';
 import { Save, RotateCcw, Download, Upload, Settings } from 'lucide-react';
 import { exportToYaml, parseYaml, downloadFile } from '../utils';
+import { useToast } from './Toast';
+import { useConfirm } from './ConfirmModal';
 
 interface SettingsEditorProps {
   settings: AppSettings;
@@ -12,6 +14,8 @@ interface SettingsEditorProps {
 export const SettingsEditor: React.FC<SettingsEditorProps> = ({ settings, onSave }) => {
   const [localSettings, setLocalSettings] = useState<AppSettings>(settings);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const { showToast } = useToast();
+  const { confirm } = useConfirm();
 
   // Sync if props change
   useEffect(() => {
@@ -43,13 +47,19 @@ export const SettingsEditor: React.FC<SettingsEditorProps> = ({ settings, onSave
 
   const handleSave = () => {
     onSave(localSettings);
-    alert('Settings saved successfully!');
+    showToast('Settings saved successfully!', 'success');
   };
 
-  const handleReset = () => {
-    if (confirm('Reset all feedback settings to default?')) {
+  const handleReset = async () => {
+    if (await confirm({
+        title: 'Reset Settings',
+        message: 'Reset all feedback settings to default?',
+        variant: 'destructive',
+        confirmLabel: 'Reset'
+    })) {
       setLocalSettings(DEFAULT_SETTINGS);
       onSave(DEFAULT_SETTINGS);
+      showToast('Settings reset to default', 'success');
     }
   };
 
@@ -68,9 +78,9 @@ export const SettingsEditor: React.FC<SettingsEditorProps> = ({ settings, onSave
       if (data && data.direct && data.indirect) {
         setLocalSettings(data);
         onSave(data);
-        alert('Settings imported successfully!');
+        showToast('Settings imported successfully!', 'success');
       } else {
-        alert('Invalid settings YAML file.');
+        showToast('Invalid settings YAML file.', 'error');
       }
     };
     reader.readAsText(file);
