@@ -207,7 +207,7 @@ export const InterviewEditor: React.FC<InterviewEditorProps> = ({
         <div className="max-w-5xl mx-auto space-y-6 md:space-y-8 pb-10">
             
             {/* Categories */}
-            {template.categories.sort((a,b) => a.order - b.order).map(cat => (
+            {template.categories.sort((a,b) => a.order - b.order).map((cat, index, arr) => (
                 <div 
                     key={cat.id} 
                     draggable={draggableId === cat.id}
@@ -218,6 +218,7 @@ export const InterviewEditor: React.FC<InterviewEditorProps> = ({
                     className={`bg-white rounded-xl shadow-sm border overflow-hidden animate-slide-up transition-all
                         ${draggedCategoryId === cat.id ? 'opacity-40 border-dashed border-gray-400' : 'border-gray-200'}
                         ${dragOverCategoryId === cat.id ? 'border-primary ring-2 ring-primary/20 scale-[1.01]' : ''}
+                        ${index === arr.length - 1 ? 'last-category' : ''}
                     `}
                 >
                     <div className="bg-gradient-to-r from-gray-50 to-white px-4 md:px-6 py-3 md:py-4 border-b border-gray-200 flex justify-between items-center">

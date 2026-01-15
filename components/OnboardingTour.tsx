@@ -16,8 +16,12 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ runTour, stepInd
       target: '#sidebar-create-template-btn',
       content: 'Start by creating a new interview template.',
       disableBeacon: true,
-      hideFooter: true,
       spotlightClicks: true,
+      styles: {
+        buttonNext: {
+          display: 'none',
+        },
+      },
     },
     {
       target: '#editor-category-input',
@@ -28,14 +32,12 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ runTour, stepInd
       target: '#editor-add-category-btn',
       content: 'Click here to add the category to your template.',
       disableBeacon: true,
-      hideFooter: true,
       spotlightClicks: true,
     },
     {
-      target: '.editor-add-question-btn',
+      target: '.last-category .editor-add-question-btn',
       content: 'Great! now click here to add a new question to this category.',
       disableBeacon: true,
-      hideFooter: true,
       spotlightClicks: true,
     },
     {
@@ -47,7 +49,6 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ runTour, stepInd
       target: '#editor-start-interview-btn',
       content: 'Perfect! Once your template is ready, click here to start the interview session.',
       disableBeacon: true,
-      hideFooter: true,
       spotlightClicks: true,
     },
   ]);

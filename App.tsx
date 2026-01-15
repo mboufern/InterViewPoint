@@ -30,7 +30,8 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     const tourCompleted = localStorage.getItem('ivp_tour_completed');
     if (!tourCompleted) {
-      setRunTour(true);
+      setIsSidebarOpen(true);
+      setTimeout(() => setRunTour(true), 500);
     }
   }, []);
 
@@ -272,7 +273,7 @@ const defaultTemplate: InterviewTemplate = {
     
     // Advance tour step with a delay to allow Editor to render
     if (runTour && tourStep === 0) {
-        setTimeout(() => setTourStep(1), 500);
+        setTimeout(() => setTourStep(1), 100);
     }
   };
 
@@ -362,13 +363,13 @@ const defaultTemplate: InterviewTemplate = {
 
   const handleCategoryAdded = () => {
     if (runTour && tourStep === 2) {
-        setTimeout(() => setTourStep(3), 400);
+        setTimeout(() => setTourStep(3), 100);
     }
   };
 
   const handleQuestionAdded = () => {
     if (runTour && tourStep === 3) {
-        setTimeout(() => setTourStep(4), 400);
+        setTimeout(() => setTourStep(4), 100);
     }
   };
 
